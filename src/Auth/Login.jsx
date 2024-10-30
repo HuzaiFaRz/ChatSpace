@@ -9,7 +9,6 @@ import {
   CircularProgress,
   IconButton,
 } from "@mui/material";
-import AddAPhotoIcon from "@mui/icons-material/AddAPhoto";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import { ToastContainer } from "react-toastify";
@@ -20,14 +19,6 @@ import {
   successShow,
   auth,
   signInWithEmailAndPassword,
-  db,
-  storage,
-  doc,
-  setDoc,
-  ref,
-  uploadBytes,
-  getDownloadURL,
-  serverTimestamp,
 } from "./firebase";
 
 const LogIn = () => {
