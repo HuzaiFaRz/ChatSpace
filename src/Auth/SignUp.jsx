@@ -1,84 +1,315 @@
 import { Fragment, useState } from "react";
-import { FormControl, TextField, InputLabel } from "@mui/material";
-import { auth, createUserWithEmailAndPassword } from "./firebase";
+
+import {
+  FormControl,
+  Input,
+  FormLabel,
+  Button,
+  Box,
+  CircularProgress,
+  IconButton,
+} from "@mui/material";
+import AddAPhotoIcon from "@mui/icons-material/AddAPhoto";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+import { ToastContainer } from "react-toastify";
+import {
+  allErrors,
+  allSuccess,
+  errorShow,
+  successShow,
+  auth,
+  createUserWithEmailAndPassword,
+  db,
+  storage,
+  doc,
+  setDoc,
+  ref,
+  uploadBytes,
+  getDownloadURL,
+  serverTimestamp,
+} from "./firebase";
+
 const SignUp = () => {
+  const [signUpLoading, setSignUpLoading] = useState(false);
+  const [passwordShow, setPasswordShow] = useState(false);
   const [signUpInputs, setSignUpInputs] = useState({
-    signUpName: "sarsa",
-    signUpEmail: "huzaifa",
-    signUpPassword: "asdfgg",
+    signUpProfile: "",
+    signUpName: "Huzaifa",
+    signUpEmail: "huzaifa@gmail.com",
+    signUpPassword: "123456",
+    signUpUID: undefined,
+    signupTime: serverTimestamp(),
   });
 
+  const signUpInputsArray = [
+    {
+      inputCommonName: "signUpName",
+      inputPlaceHolderName: "Name",
+      inputType: "text",
+    },
+    {
+      inputCommonName: "signUpEmail",
+      inputPlaceHolderName: "Email",
+      inputType: "email",
+    },
+    {
+      inputCommonName: "signUpPassword",
+      inputPlaceHolderName: "Password",
+      inputType: passwordShow ? "text" : "password",
+    },
+    {
+      inputCommonName: "signUpProfile",
+      inputPlaceHolderName: "Select Profile",
+      inputType: "file",
+    },
+  ];
+
   const signUpInputsHandler = (event) => {
+    const { name, value, type } = event.target;
     setSignUpInputs((prevSetSignUpInputs) => ({
       ...prevSetSignUpInputs,
-      [event.target.name]: event.target.value,
+      [name]: type === "file" ? event.target.files[0] : value,
     }));
   };
 
   const signUpSubmitHandler = async (event) => {
     try {
       event.preventDefault();
+
       if (
-        !signUpInputs.signUpName ||
-        !signUpInputs.signUpEmail ||
-        !signUpInputs.signUpPassword
+        /\s/.test(signUpInputs.signUpName) ||
+        /\s/.test(signUpInputs.signUpEmail) ||
+        /\s/.test(signUpInputs.signUpPassword)
       ) {
-        alert("fioll");
+        errorShow(allErrors.blankSpace);
+        return;
+      } else if (!signUpInputs.signUpName) {
+        errorShow(allErrors.nameError);
+        return;
+      } else if (!signUpInputs.signUpEmail) {
+        errorShow(allErrors.emailError);
+        return;
+      } else if (!signUpInputs.signUpPassword) {
+        errorShow(allErrors.passwordError);
+        return;
+      } else if (signUpInputs.signUpPassword <= 6) {
+        errorShow(allErrors.passwordWeekError);
+        return;
+      } else if (!signUpInputs.signUpProfile) {
+        errorShow(allErrors.profileError);
         return;
       }
+      signUpInputs;
+      setSignUpLoading(true);
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         signUpInputs.signUpEmail,
         signUpInputs.signUpPassword
       );
-      console.log(userCredential.user);
+      const user = userCredential.user;
+      const userRef = ref(storage, `Users/${user.uid}`);
+      await uploadBytes(userRef, signUpInputs.signUpProfile);
+      const URL = await getDownloadURL(userRef);
+      signUpInputs.signUpProfile = URL;
+      signUpInputs.signUpUID = user.uid;
+      const userDocRef = doc(db, "Users", user.uid);
+      await setDoc(userDocRef, signUpInputs);
+      setSignUpLoading(false);
+      signUpInputs.signUpName = "";
+      signUpInputs.signUpEmail = "";
+      signUpInputs.signUpPassword = "";
+      signUpInputs.signUpProfile = "";
+      successShow(allSuccess.signUpSuccess);
     } catch (error) {
+      if (error.message === `Firebase: Error (auth/email-already-in-use).`) {
+        errorShow(allErrors.userExistError);
+      } else if (
+        error.message ===
+        `Firebase: Password should be at least 6 characters (auth/weak-password).`
+      ) {
+        errorShow(allErrors.passwordWeekError);
+      } else if (
+        error.message === `Firebase: Error (auth/network-request-failed).`
+      ) {
+        errorShow(allErrors.slowNetworkError);
+      } else {
+        errorShow(error.message);
+      }
       console.log(error);
+      setSignUpLoading(false);
     }
   };
   return (
     <Fragment>
-      <FormControl component={"form"} onSubmit={signUpSubmitHandler}>
-        <InputLabel>
-          <TextField
-            type={"text"}
-            name="signUpName"
-            className={"signUpName"}
-            id={"signUpName"}
-            placeholder="Enter Name"
-            value={signUpInputs.signUpName}
-            onChange={signUpInputsHandler}
-          ></TextField>
-        </InputLabel>
+      <Box
+        width={"100%"}
+        height={"100vh"}
+        component={"div"}
+        className="SignUpPage"
+        sx={{
+          backgroundColor: "#25D366",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          padding: "10px",
+        }}
+      >
+        <ToastContainer />
+        <Box
+          component={"form"}
+          className="signUpForm"
+          onSubmit={signUpSubmitHandler}
+          sx={{
+            backgroundColor: "#fff",
+            width: {
+              xs: "100%",
+              sm: "500px",
+            },
+            height: "700px",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-evenly",
+            alignItems: "center",
+            borderRadius: "20px",
+            padding: "10px 10px",
+          }}
+        >
+          {signUpInputsArray.map((elem, index) => {
+            return (
+              <Fragment key={index}>
+                <FormControl
+                  sx={{
+                    width: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                    alignItems: "flex-start",
+                    padding: "10px 10px",
+                  }}
+                  disabled={signUpLoading ? true : false}
+                >
+                  <FormLabel
+                    htmlFor={elem.inputCommonName}
+                    sx={{
+                      width: "100%",
+                      fontSize: { xs: "1em", lg: "1.5em" },
+                      color: "#128C7E",
+                      ...(elem.inputType === "file" && {
+                        display: "flex",
+                        flexDirection: "row",
+                        justifyContent: "flex-start",
+                        alignItems: "center",
+                        gap: "5px",
+                      }),
+                    }}
+                  >
+                    {elem.inputType === "file" && (
+                      <AddAPhotoIcon
+                        sx={{ fontSize: "1.3em", marginBottom: "0.4rem" }}
+                      ></AddAPhotoIcon>
+                    )}
+                    {elem.inputPlaceHolderName}
+                  </FormLabel>
 
-        <TextField
-          type={"email"}
-          name="signUpEmail"
-          className={"signUpEmail"}
-          id={"signUpEmail"}
-          placeholder="Enter Email"
-          value={signUpInputs.signUpEmail}
-          onChange={signUpInputsHandler}
-        ></TextField>
-        <TextField
-          type={"text"}
-          name="signUpPassword"
-          className={"signUpPassword"}
-          id={"signUpPassword"}
-          placeholder="Enter Password"
-          value={signUpInputs.signUpPassword}
-          onChange={signUpInputsHandler}
-        ></TextField>
-        <TextField
-          type={"submit"}
-          name="signUpSubmitButton"
-          className={"signUpSubmitButton"}
-          id={"signUpSubmitButton"}
-          value={"Sign Up"}
-        ></TextField>
-      </FormControl>
+                  <Input
+                    type={elem.inputType}
+                    name={elem.inputCommonName}
+                    className={elem.inputCommonName}
+                    sx={{
+                      color: "#128C7E",
+                      width: "100%",
+                      padding: "10px 20px",
+                    }}
+                    id={elem.inputCommonName}
+                    placeholder={
+                      elem.inputType === "file"
+                        ? undefined
+                        : `Enter ${elem.inputPlaceHolderName}`
+                    }
+                    value={
+                      elem.inputType === "file"
+                        ? undefined
+                        : signUpInputs[elem.inputCommonName] || ""
+                    }
+                    inputProps={{
+                      accept: elem.inputType === "file" ? "image/*" : undefined,
+                    }}
+                    onChange={(event) => {
+                      signUpInputsHandler(event);
+                    }}
+                  />
+
+                  {index === 2 && (
+                    <IconButton
+                      onClick={() => {
+                        setPasswordShow((prev) => !prev);
+                      }}
+                      sx={{
+                        position: "absolute",
+                        fontSize: "1.3em",
+                        marginBottom: "0.4rem",
+                        right: "3%",
+                        top: "50%",
+                        cursor: "pointer",
+                      }}
+                    >
+                      {passwordShow ? (
+                        <VisibilityIcon
+                          sx={{ fill: "#128c7e" }}
+                        ></VisibilityIcon>
+                      ) : (
+                        <VisibilityOffIcon
+                          sx={{ fill: "#128c7e" }}
+                        ></VisibilityOffIcon>
+                      )}
+                    </IconButton>
+                  )}
+                </FormControl>
+              </Fragment>
+            );
+          })}
+
+          <Button
+            disabled={signUpLoading ? true : false}
+            sx={{
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "center",
+              alignItems: "center",
+              width: "100%",
+              padding: "10px 15px",
+              background: "#128C7E",
+              color: "white",
+              fontWeight: "900",
+              letterSpacing: "2px",
+              fontSize: { xs: "0.8em", lg: "1.5em" },
+            }}
+            type={"submit"}
+            name="signUpSubmitButton"
+            className={"signUpSubmitButton"}
+            id={"signUpSubmitButton"}
+          >
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "center",
+                alignItems: "center",
+                gap: "10px",
+              }}
+            >
+              {signUpLoading ? (
+                <CircularProgress color="white" size={"1.5em"} />
+              ) : (
+                "Sign Up"
+              )}
+            </Box>
+          </Button>
+        </Box>
+      </Box>
     </Fragment>
   );
 };
-
 export default SignUp;

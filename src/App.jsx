@@ -1,21 +1,23 @@
-import { Fragment } from "react";
 import LocomotiveScroll from "locomotive-scroll";
+import "react-toastify/dist/ReactToastify.css";
+import Home from "./MainComponents/Home";
 import SignUp from "./Auth/SignUp";
-
-import "@fontsource/roboto/300.css";
-import "@fontsource/roboto/400.css";
-import "@fontsource/roboto/500.css";
-import "@fontsource/roboto/700.css";
+import Login from "./Auth/Login";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import ProtectedRoutes from "./Utilities/ProtectedRoutes";
 
 const App = () => {
   new LocomotiveScroll();
-
   return (
-    <Fragment>
-      <main className="Main">
-        <SignUp />
-      </main>
-    </Fragment>
+    <BrowserRouter>
+      <Routes>
+        <Route element={<Login />} path={"/login"} />
+        <Route element={<SignUp />} path={"/signup"} />
+        <Route element={<ProtectedRoutes />}>
+          <Route element={<Home />} path={"/"} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
   );
 };
 
