@@ -24,22 +24,22 @@ import {
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { toast } from "react-toastify";
 const {
-  VITE_DRIVEHUB_apiKey,
-  VITE_DRIVEHUB_authDomain,
-  VITE_DRIVEHUB_projectId,
-  VITE_DRIVEHUB_storageBucket,
-  VITE_DRIVEHUB_messagingSenderId,
-  VITE_DRIVEHUB_appId,
-  VITE_DRIVEHUB_measurementId,
+  VITE_CHATSPACE_apiKey,
+  VITE_CHATSPACE_authDomain,
+  VITE_CHATSPACE_projectId,
+  VITE_CHATSPACE_storageBucket,
+  VITE_CHATSPACE_messagingSenderId,
+  VITE_CHATSPACE_appId,
+  VITE_CHATSPACE_measurementId,
 } = import.meta.env;
 const firebaseConfig = {
-  apiKey: VITE_DRIVEHUB_apiKey,
-  authDomain: VITE_DRIVEHUB_authDomain,
-  projectId: VITE_DRIVEHUB_projectId,
-  storageBucket: VITE_DRIVEHUB_storageBucket,
-  messagingSenderId: VITE_DRIVEHUB_messagingSenderId,
-  appId: VITE_DRIVEHUB_appId,
-  measurementId: VITE_DRIVEHUB_measurementId,
+  apiKey: VITE_CHATSPACE_apiKey,
+  authDomain: VITE_CHATSPACE_authDomain,
+  projectId: VITE_CHATSPACE_projectId,
+  storageBucket: VITE_CHATSPACE_storageBucket,
+  messagingSenderId: VITE_CHATSPACE_messagingSenderId,
+  appId: VITE_CHATSPACE_appId,
+  measurementId: VITE_CHATSPACE_measurementId,
 };
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
