@@ -1,5 +1,5 @@
 import { Fragment, useState } from "react";
-
+import { Link } from "react-router-dom";
 import {
   FormControl,
   Input,
@@ -8,6 +8,7 @@ import {
   Box,
   CircularProgress,
   IconButton,
+  Typography,
 } from "@mui/material";
 import AddAPhotoIcon from "@mui/icons-material/AddAPhoto";
 import VisibilityIcon from "@mui/icons-material/Visibility";
@@ -29,8 +30,10 @@ import {
   getDownloadURL,
   serverTimestamp,
 } from "./firebase";
+import { useNavigate } from "react-router-dom";
 
 const SignUp = () => {
+  const navigate = useNavigate();
   const [signUpLoading, setSignUpLoading] = useState(false);
   const [passwordShow, setPasswordShow] = useState(false);
   const [signUpInputs, setSignUpInputs] = useState({
@@ -121,6 +124,7 @@ const SignUp = () => {
       signUpInputs.signUpPassword = "";
       signUpInputs.signUpProfile = "";
       successShow(allSuccess.signUpSuccess);
+      navigate("/login");
     } catch (error) {
       if (error.message === `Firebase: Error (auth/email-already-in-use).`) {
         errorShow(allErrors.userExistError);
@@ -176,6 +180,18 @@ const SignUp = () => {
             padding: "10px 10px",
           }}
         >
+          <Typography
+            variant="h4"
+            sx={{
+              color: "#128C7E",
+              fontWeight: "500",
+              textDecoration: "underline",
+              textUnderlineOffset: "20px",
+              padding: "10px 10px",
+            }}
+          >
+            Sign Up
+          </Typography>
           {signUpInputsArray.map((elem, index) => {
             return (
               <Fragment key={index}>
@@ -201,7 +217,7 @@ const SignUp = () => {
                         flexDirection: "row",
                         justifyContent: "flex-start",
                         alignItems: "center",
-                        gap: "5px",
+                        gap: "10px",
                       }),
                     }}
                   >
@@ -307,6 +323,32 @@ const SignUp = () => {
               )}
             </Box>
           </Button>
+          <Box
+            component={"span"}
+            sx={{
+              padding: "20px 15px",
+              width: "100%",
+              color: "#075E54",
+              textAlign: "center",
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "center",
+              alignItems: "center",
+              gap: "10px",
+            }}
+          >
+            Already have an Account ?
+            <Link
+              to={"/login"}
+              style={{
+                textDecoration: "none",
+                color: "#34B7F1",
+                fontWeight: "900",
+              }}
+            >
+              Log In
+            </Link>
+          </Box>
         </Box>
       </Box>
     </Fragment>

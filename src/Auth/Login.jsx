@@ -1,5 +1,5 @@
 import { Fragment, useState } from "react";
-
+import { Link, useNavigate } from "react-router-dom";
 import {
   FormControl,
   Input,
@@ -8,6 +8,7 @@ import {
   Box,
   CircularProgress,
   IconButton,
+  Typography,
 } from "@mui/material";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
@@ -22,6 +23,7 @@ import {
 } from "./firebase";
 
 const LogIn = () => {
+  const navigate = useNavigate();
   const [logInLoading, setLogInLoading] = useState(false);
   const [passwordShow, setPasswordShow] = useState(false);
   const [logInInputs, setLogInInputs] = useState({
@@ -80,6 +82,7 @@ const LogIn = () => {
       logInInputs.logInEmail = "";
       logInInputs.logInPassword = "";
       successShow(allSuccess.logInSuccess);
+      navigate("/");
     } catch (error) {
       if (error.message === `Firebase: Error (auth/invalid-credential).`) {
         errorShow(allErrors.inValidUser);
@@ -105,7 +108,7 @@ const LogIn = () => {
         width={"100%"}
         height={"100vh"}
         component={"div"}
-        className="SignUpPage"
+        className="LogInPage"
         sx={{
           backgroundColor: "#25D366",
           display: "flex",
@@ -126,7 +129,7 @@ const LogIn = () => {
               xs: "100%",
               sm: "500px",
             },
-            height: "400px",
+            height: "450px",
             display: "flex",
             flexDirection: "column",
             justifyContent: "space-evenly",
@@ -135,6 +138,18 @@ const LogIn = () => {
             padding: "10px 10px",
           }}
         >
+          <Typography
+            variant="h4"
+            sx={{
+              color: "#128C7E",
+              fontWeight: "500",
+              textDecoration: "underline",
+              textUnderlineOffset: "20px",
+              padding: "10px 10px",
+            }}
+          >
+            Log In
+          </Typography>
           {logInInputsArray.map((elem, index) => {
             return (
               <Fragment key={index}>
@@ -248,6 +263,32 @@ const LogIn = () => {
               )}
             </Box>
           </Button>
+          <Box
+            component={"span"}
+            sx={{
+              padding: "20px 15px",
+              width: "100%",
+              color: "#075E54",
+              textAlign: "center",
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "center",
+              alignItems: "center",
+              gap: "10px",
+            }}
+          >
+            Don't have an Account ?
+            <Link
+              to={"/signup"}
+              style={{
+                textDecoration: "none",
+                color: "#34B7F1",
+                fontWeight: "900",
+              }}
+            >
+              Sign Up
+            </Link>
+          </Box>
         </Box>
       </Box>
     </Fragment>
