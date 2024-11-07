@@ -1,0 +1,90 @@
+@font-face {
+  font-family: comfortaaMedium;
+  src: url(./assets/Fonts/Comfortaa-Medium.ttf);
+}
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: comfortaaMedium !important;
+  user-select: none !important;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+}
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: #075e54;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: white;
+}
+body {
+  overflow-x: hidden;
+  background-color: #128c7e !important;
+}
+
+#root {
+  width: 100%;
+  height: 100vh;
+  background-color: black !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.Toastify__close-button,
+.Toastify__close-button {
+  fill: white !important;
+  background-color: white;
+}
+
+#signUpProfile::-webkit-file-upload-button {
+  display: none !important;
+}
+
+.signUpSubmitButton:disabled,
+.logInSubmitButton:disabled {
+  color: white !important;
+}
+
+input::placeholder {
+  color: #128c7e !important;
+}
+
+.MuiDrawer-paperAnchorRight {
+  width: 50% !important;
+  background-color: #075e54 !important;
+}
+
+.MuiDrawer-paperAnchorLeft {
+  background-color: #075e54 !important;
+}
+
+#messegeInput::placeholder {
+  color: #075e54 !important;
+}
+
+@media (max-width: 600px) {
+  .MuiDrawer-paperAnchorRight,
+  .MuiDrawer-paperAnchorLeft {
+    width: 80% !important;
+  }
+
+  .MuiDrawer-paperAnchorLeft {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+    align-items: center !important;
+    gap: 15px !important;
+    padding: "10px 0 !important";
+  }
+}
