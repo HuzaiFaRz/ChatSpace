@@ -28,10 +28,13 @@ import {
   doc,
   getDoc,
   onSnapshot,
+  serverTimestamp,
+  allErrors,
+  setDoc,
+  addDoc,
 } from "../Auth/firebase";
 
 import { useNavigate } from "react-router-dom";
-
 import {
   AccountBox as AccountBoxIcon,
   Logout as LogoutIcon,
@@ -146,16 +149,34 @@ const ChatSpaceApp = () => {
     setMassegeInput((prevMassegeInput) => ({
       ...prevMassegeInput,
       massegeText: event.target.value,
-      massegeSentAt: new Date(),
-      massegeSentBy: "Huzaifa",
+      massegeSentAt: serverTimestamp(),
+      massegeSentBy: loginUser.uid,
     }));
   };
 
-  const massegeFormHandler = (event) => {
+  const massegeFormHandler = async (event) => {
     event.preventDefault();
-    if (!massegeInput.massegeText) {
-      alert("Fill Massege");
-      return;
+    try {
+      if (!massegeInput.massegeText) {
+        errorShow(allErrors.emptyMessegeError);
+        console.log(this);
+        return;
+      }
+      console.log(massegeInput);
+
+      const massegesCollection = collection(db, `Masseges/${loginUser.uid}`);
+      const data = await addDoc(massegesCollection, massegeInput);
+      console.log(data);
+      setMassegeInput((prevMassegeInput) => ({
+        ...prevMassegeInput,
+        massegeText: "",
+        massegeSentAt: "",
+        massegeSentBy: "",
+      }));
+      successShow(allSuccess.messegeSentSuccess);
+    } catch (error) {
+      errorShow(error.messege);
+      console.log(error);
     }
   };
 
@@ -654,8 +675,6 @@ const ChatSpaceApp = () => {
                   height: "10%",
                   backgroundColor: "#075E54",
                   padding: "10px 10px",
-                  // borderTop: "5px solid white",
-                  // borderRight: "5px solid white",
                   borderLeft: "2px solid white",
                 }}
                 onSubmit={massegeFormHandler}
@@ -678,6 +697,7 @@ const ChatSpaceApp = () => {
 
                 <IconButton
                   type="submit"
+                  disabled={massegeInput.massegeText ? false : true}
                   sx={{ width: { xs: "20%", md: "10%" } }}
                 >
                   <SendIcon

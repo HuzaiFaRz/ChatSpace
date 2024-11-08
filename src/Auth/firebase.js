@@ -19,7 +19,7 @@ import {
   deleteDoc,
   updateDoc,
   orderBy,
-  onSnapshot ,
+  onSnapshot,
   serverTimestamp,
 } from "firebase/firestore";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
@@ -72,11 +72,14 @@ const allErrors = {
   blankSpace: "Please remove any blank spaces.",
   passwordWeekError: "Password should be at least 6 characters",
   profileExtention: "File extension not supported!",
+  emptyMessegeError: "Please Type Messege",
 };
 const allSuccess = {
   signUpSuccess: "Account Created SuccessFully! You Can Now Log In.",
   logInSuccess: "Login SuccessFully!",
-  signOutSuccess: "Sign Out SuccessFully"
+  signOutSuccess: "Sign Out SuccessFully",
+  messegeSentSuccess: "Messege Sent",
+
 };
 
 export {

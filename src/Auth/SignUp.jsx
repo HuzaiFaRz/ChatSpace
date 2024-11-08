@@ -39,9 +39,9 @@ const SignUp = () => {
   const [passwordShow, setPasswordShow] = useState(false);
   const [signUpInputs, setSignUpInputs] = useState({
     signUpProfile: "",
-    signUpName: "HuzaiFa Raza",
-    signUpEmail: "huzaifa@gmail.com",
-    signUpPassword: "123456",
+    signUpName: "",
+    signUpEmail: "",
+    signUpPassword: "",
     signupTime: serverTimestamp(),
   });
 
@@ -126,13 +126,17 @@ const SignUp = () => {
       await uploadBytes(userRef, signUpInputs.signUpProfile);
       const URL = await getDownloadURL(userRef);
       signUpInputs.signUpProfile = URL;
-      const userDocRef = doc(db, "Users", user.uid);
-      await setDoc(userDocRef, signUpInputs);
+      const usersDoc = doc(db, "Users", user.uid);
+      await setDoc(usersDoc, signUpInputs);
       setSignUpLoading(false);
-      signUpInputs.signUpName = "";
-      signUpInputs.signUpEmail = "";
-      signUpInputs.signUpPassword = "";
-      signUpInputs.signUpProfile = "";
+      setSignUpInputs((prevSetSignUpInputs) => ({
+        ...prevSetSignUpInputs,
+        signUpProfile: "",
+        signUpName: "",
+        signUpEmail: "",
+        signUpPassword: "",
+        signupTime: "",
+      }));
       successShow(allSuccess.signUpSuccess);
       navigate("/login");
     } catch (error) {

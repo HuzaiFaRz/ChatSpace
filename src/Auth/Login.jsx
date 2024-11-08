@@ -82,8 +82,12 @@ const LogIn = () => {
       setLoginUser(userCredential.user);
       navigate("/", replace);
       setLogInLoading(false);
-      logInInputs.logInEmail = "";
-      logInInputs.logInPassword = "";
+
+      setLogInInputs((prevSetLogInInputs) => ({
+        ...prevSetLogInInputs,
+        logInEmail: "",
+        logInPassword: "",
+      }));
       successShow(allSuccess.logInSuccess);
     } catch (error) {
       if (error.message === `Firebase: Error (auth/invalid-credential).`) {
