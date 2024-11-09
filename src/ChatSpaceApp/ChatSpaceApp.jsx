@@ -1,4 +1,4 @@
-import React, { useState, Fragment, useEffect } from "react";
+import React, { useState, Fragment, useEffect, useRef } from "react";
 import {
   Button,
   Typography,
@@ -32,6 +32,7 @@ import {
   allErrors,
   setDoc,
   addDoc,
+  ref,
 } from "../Auth/firebase";
 
 import { useNavigate } from "react-router-dom";
@@ -48,6 +49,7 @@ import PropTypes from "prop-types";
 import { useAuth } from "../Utilities/AuthProvider";
 
 const ChatSpaceApp = () => {
+  const messegeBody = useRef(null);
   const [currentUserData, setCurrentUserData] = useState();
   const [allUsersData, setAllUserData] = useState([]);
   const { loginUser } = useAuth();
@@ -59,7 +61,12 @@ const ChatSpaceApp = () => {
     if (loginUser) {
       navigate("/");
     }
-  }, [loginUser, navigate]);
+    if (chatOpen) {
+      if (messegeBody.current) {
+        messegeBody.current.scrollTop = messegeBody.current.scrollHeight;
+      }
+    }
+  }, [chatOpen, loginUser, navigate]);
 
   useEffect(() => {
     if (loginUser) {
@@ -69,7 +76,7 @@ const ChatSpaceApp = () => {
           const response = await getDoc(userDocRef);
           setCurrentUserData(response.data());
         } catch (error) {
-          console.log(error);
+          errorShow(error.messege);
         }
       })();
     }
@@ -127,7 +134,6 @@ const ChatSpaceApp = () => {
       successShow(allSuccess.signOutSuccess);
     } catch (error) {
       setLogOutLoading(false);
-      console.log(error);
       errorShow(error.messege);
     }
   };
@@ -149,7 +155,7 @@ const ChatSpaceApp = () => {
     setMassegeInput((prevMassegeInput) => ({
       ...prevMassegeInput,
       massegeText: event.target.value,
-      massegeSentAt: serverTimestamp(),
+      massegeSentAt: "",
       massegeSentBy: loginUser.uid,
     }));
   };
@@ -159,14 +165,14 @@ const ChatSpaceApp = () => {
     try {
       if (!massegeInput.massegeText) {
         errorShow(allErrors.emptyMessegeError);
-        console.log(this);
         return;
       }
-      console.log(massegeInput);
-
-      const massegesCollection = collection(db, `Masseges/${loginUser.uid}`);
-      const data = await addDoc(massegesCollection, massegeInput);
-      console.log(data);
+      const massegesCollection = collection(db, `Masseges`);
+      massegeInput.massegeSentAt = serverTimestamp();
+      await addDoc(massegesCollection, massegeInput);
+      if (messegeBody.current) {
+        messegeBody.current.scrollTop = messegeBody.current.scrollHeight;
+      }
       setMassegeInput((prevMassegeInput) => ({
         ...prevMassegeInput,
         massegeText: "",
@@ -176,9 +182,32 @@ const ChatSpaceApp = () => {
       successShow(allSuccess.messegeSentSuccess);
     } catch (error) {
       errorShow(error.messege);
-      console.log(error);
     }
   };
+
+  const [getMessege, setGetMasseges] = useState();
+  useEffect(() => {
+    (() => {
+      const messgesRef = query(
+        collection(db, "Masseges"),
+        orderBy("massegeSentAt", "asc")
+      );
+      onSnapshot(messgesRef, (doc) => {
+        const newMessages = doc.docs.map((data) => data.data());
+        setGetMasseges(newMessages);
+        if (messegeBody.current) {
+          messegeBody.current.scrollTop = messegeBody.current.scrollHeight;
+        }
+      });
+    })();
+  }, []);
+
+  useEffect(() => {
+    if (messegeBody.current) {
+      messegeBody.current.scrollTop = messegeBody.current.scrollHeight;
+      return;
+    }
+  }, [getMessege, passingUser]);
 
   const contacts =
     allUsersData.length === 0 ? (
@@ -233,17 +262,11 @@ const ChatSpaceApp = () => {
                   objectFit: "cover",
                   objectPosition: "center",
                 }}
-                src={
-                  usersData === undefined
-                    ? "https://static.vecteezy.com/system/resources/previews/036/280/650/non_2x/default-avatar-profile-icon-social-media-user-image-gray-avatar-icon-blank-profile-silhouette-illustration-vector.jpg"
-                    : usersData.signUpProfile
-                }
+                src={usersData?.signUpProfile}
                 alt="Profile Img"
               />
               <ListItemText
-                primary={
-                  usersData === undefined ? "User" : usersData.signUpName
-                }
+                primary={usersData?.signUpName}
                 sx={{ color: "#fff" }}
               />
             </List>
@@ -371,11 +394,7 @@ const ChatSpaceApp = () => {
                 objectFit: "cover",
                 objectPosition: "center",
               }}
-              src={
-                currentUserData === undefined
-                  ? "https://www.pngitem.com/pimgs/m/150-1503945_transparent-user-png-default-user-image-png-png.png"
-                  : currentUserData.signUpProfile
-              }
+              src={currentUserData?.signUpProfile}
               alt="Profile Img"
             />
             <Typography
@@ -385,15 +404,10 @@ const ChatSpaceApp = () => {
                 fontSize: { xs: "2rem", sm: "2rem" },
               }}
             >
-              Hi !{" "}
-              {currentUserData === undefined
-                ? "User"
-                : currentUserData.signUpName}
+              Hi ! {currentUserData?.signUpName}
             </Typography>
             <Typography id="modal-modal-description" sx={{ color: "white" }}>
-              {currentUserData === undefined
-                ? `User@gmail.com`
-                : currentUserData.signUpEmail}
+              {currentUserData?.signUpEmail}
             </Typography>
           </Box>
         </Drawer>
@@ -444,13 +458,13 @@ const ChatSpaceApp = () => {
                 sx={{
                   width: "100%",
                   height: "90%",
-                  overflowY: "auto",
                 }}
               >
                 <Box
-                  id="messegeHeader"
+                  id="massegeHeader"
                   sx={{
                     width: "100%",
+
                     height: "10%",
                     backgroundColor: "#075E54",
                     display: "flex",
@@ -506,11 +520,7 @@ const ChatSpaceApp = () => {
                             objectFit: "cover",
                             objectPosition: "center",
                           }}
-                          src={
-                            passingUser === undefined
-                              ? "https://www.pngitem.com/pimgs/m/150-1503945_transparent-user-png-default-user-image-png-png.png"
-                              : passingUser.signUpProfile
-                          }
+                          src={passingUser?.signUpProfile}
                           alt="Profile Img"
                         />
                         <Box>
@@ -519,18 +529,13 @@ const ChatSpaceApp = () => {
                             variant="h6"
                             component="h2"
                           >
-                            {" "}
-                            {passingUser === undefined
-                              ? `User`
-                              : passingUser.signUpName}
+                            {passingUser?.signUpName}
                           </Typography>
                           <Typography
                             id="modal-modal-description"
                             sx={{ mt: 2 }}
                           >
-                            {passingUser === undefined
-                              ? `User@gmail.com`
-                              : passingUser.signUpEmail}
+                            {passingUser?.signUpEmail}
                           </Typography>
                         </Box>
                       </Box>
@@ -545,19 +550,11 @@ const ChatSpaceApp = () => {
                         objectFit: "cover",
                         objectPosition: "center",
                       }}
-                      src={
-                        passingUser === undefined
-                          ? `https://www.pngitem.com/pimgs/m/150-1503945_transparent-user-png-default-user-image-png-png.png`
-                          : passingUser.signUpProfile
-                      }
+                      src={passingUser?.signUpProfile}
                       alt="Profile Img"
                     />
                     <ListItemText
-                      primary={
-                        passingUser === undefined
-                          ? `User`
-                          : passingUser.signUpName
-                      }
+                      primary={passingUser?.signUpName}
                       sx={{ color: "#fff" }}
                     />
                   </List>
@@ -612,11 +609,12 @@ const ChatSpaceApp = () => {
                   </Box>
                 </Box>
                 <Box
+                  ref={messegeBody}
                   id="messegeBody"
                   sx={{
                     width: "100%",
                     height: "90%",
-                    overflowY: "auto",
+                    overflowX: "hidden",
                   }}
                 >
                   <Box
@@ -624,42 +622,100 @@ const ChatSpaceApp = () => {
                       display: "flex",
                       flexDirection: "column",
                       justifyContent: "center",
+                      alignItems: "center",
+                      gap: "10px",
                       width: "100%",
-                      alignItems: false ? "flex-end" : "flex-start",
                       padding: "10px 10px",
                     }}
                   >
-                    <Typography
-                      id="messegetext"
-                      sx={{
-                        color: "white",
-                        backgroundColor: "#075E54",
-                        width: "80%",
-                        padding: "10px 10px",
-                        borderRadius: "20px",
-                        display: "flex",
-                        flexDirection: "column",
-                        justifyContent: "center",
-                        alignItems: "center",
-                      }}
-                    >
-                      Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                      Perferendis magni modi laboriosam fugiat voluptas!
-                      Facilis.
-                      <span
-                        id="messegeTime"
-                        style={{
+                    {getMessege.length !== 0 ? (
+                      getMessege.map((data, index) => {
+                        const massegeSendAtConvert =
+                          data?.massegeSentAt?.seconds * 1000 +
+                          data?.massegeSentAt?.nanoseconds / 1000000;
+
+                        const massegeSendAtConverted = new Date(
+                          massegeSendAtConvert
+                        )?.toLocaleString("en-US", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          hour12: "true",
+                          weekday: "short",
+                          year: "2-digit",
+                          month: "2-digit",
+                          day: "2-digit",
+                        });
+
+                        return (
+                          <React.Fragment key={index}>
+                            <Typography
+                              id="messegetext"
+                              sx={{
+                                color:
+                                  data?.massegeSentBy === loginUser.uid
+                                    ? "#075E54"
+                                    : "#fff",
+                                backgroundColor:
+                                  data?.massegeSentBy === loginUser.uid
+                                    ? "#fff"
+                                    : "#075E54",
+                                width: "300px",
+                                minWidth: "max-content",
+                                padding: "10px 10px",
+                                borderRadius: "5px",
+                                display: "flex",
+                                flexDirection: "column",
+                                gap: "10px",
+
+                                alignItems: "flex-start",
+                                alignSelf:
+                                  data?.massegeSentBy === loginUser.uid
+                                    ? "flex-end"
+                                    : "flex-start",
+
+                                position: "relative",
+                                overflow: "hidden",
+                              }}
+                            >
+                              {data?.massegeText}
+
+                              <span
+                                id="messegeTime"
+                                style={{
+                                  width: "100%",
+                                  textAlign: "end",
+                                  color:
+                                    data?.massegeSentBy === loginUser.uid
+                                      ? "#075E54"
+                                      : "#fff",
+                                  opacity: "0.5",
+                                  fontSize: "1rem",
+                                }}
+                              >
+                                {massegeSendAtConverted === "Invalid Date"
+                                  ? "....."
+                                  : massegeSendAtConverted}
+                              </span>
+                            </Typography>
+                          </React.Fragment>
+                        );
+                      })
+                    ) : (
+                      <Typography
+                        sx={{
                           width: "100%",
-                          color: "white",
-                          opacity: "0.5",
-                          fontSize: "1rem",
-                          textAlign: "end",
-                          padding: "5px 10px",
+                          textAlign: "center",
+                          fontSize: "2em",
+                          color: "#fff",
+                          position: "absolute",
+                          top: "50%",
+                          left: "50%",
+                          transform: "translate(-50%,-50%)",
                         }}
                       >
-                        01:26
-                      </span>
-                    </Typography>
+                        No Messeges
+                      </Typography>
+                    )}
                   </Box>
                 </Box>
               </Box>
