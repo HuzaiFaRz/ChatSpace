@@ -11,6 +11,7 @@ import {
   ListItemText,
   AppBar,
   Modal,
+  Tooltip,
 } from "@mui/material";
 
 import {
@@ -209,6 +210,25 @@ const ChatSpaceApp = () => {
     }
   }, [getMessege, passingUser]);
 
+  // const [massegeSendByUserGetting, setMassegeSendByUserGetting] = useState();
+
+  // useEffect(() => {
+  //   getMessege?.map((data) => {
+  //     try {
+  //       (async () => {
+  //         const userMassegeRef = doc(db, "Users", data.massegeSentBy);
+  //         const response = await getDoc(userMassegeRef);
+  //         console.log(response.data());
+  //         setMassegeSendByUserGetting(response.data());
+  //       })();
+  //     } catch (error) {
+  //       console.log(error);
+  //       errorShow(error.messege);
+  //     }
+  //   });
+  // }, [getMessege]);
+
+  // console.log(massegeSendByUserGetting?.signUpName);
   const contacts =
     allUsersData.length === 0 ? (
       <React.Fragment>
@@ -648,55 +668,57 @@ const ChatSpaceApp = () => {
 
                         return (
                           <React.Fragment key={index}>
-                            <Typography
-                              id="messegetext"
-                              sx={{
-                                color:
-                                  data?.massegeSentBy === loginUser.uid
-                                    ? "#075E54"
-                                    : "#fff",
-                                backgroundColor:
-                                  data?.massegeSentBy === loginUser.uid
-                                    ? "#fff"
-                                    : "#075E54",
-                                width: "300px",
-                                minWidth: "max-content",
-                                padding: "10px 10px",
-                                borderRadius: "5px",
-                                display: "flex",
-                                flexDirection: "column",
-                                gap: "10px",
-
-                                alignItems: "flex-start",
-                                alignSelf:
-                                  data?.massegeSentBy === loginUser.uid
-                                    ? "flex-end"
-                                    : "flex-start",
-
-                                position: "relative",
-                                overflow: "hidden",
-                              }}
-                            >
-                              {data?.massegeText}
-
-                              <span
-                                id="messegeTime"
-                                style={{
-                                  width: "100%",
-                                  textAlign: "end",
+                            <Tooltip title={data?.massegeSentBy}>
+                              <Typography
+                                id="messegetext"
+                                sx={{
                                   color:
                                     data?.massegeSentBy === loginUser.uid
                                       ? "#075E54"
                                       : "#fff",
-                                  opacity: "0.5",
-                                  fontSize: "1rem",
+                                  backgroundColor:
+                                    data?.massegeSentBy === loginUser.uid
+                                      ? "#fff"
+                                      : "#075E54",
+                                  width: "300px",
+                                  minWidth: "max-content",
+                                  padding: "10px 10px",
+                                  borderRadius: "5px",
+                                  display: "flex",
+                                  flexDirection: "column",
+                                  gap: "10px",
+
+                                  alignItems: "flex-start",
+                                  alignSelf:
+                                    data?.massegeSentBy === loginUser.uid
+                                      ? "flex-end"
+                                      : "flex-start",
+
+                                  position: "relative",
+                                  overflow: "hidden",
                                 }}
                               >
-                                {massegeSendAtConverted === "Invalid Date"
-                                  ? "....."
-                                  : massegeSendAtConverted}
-                              </span>
-                            </Typography>
+                                {data?.massegeText}
+
+                                <span
+                                  id="messegeTime"
+                                  style={{
+                                    width: "100%",
+                                    textAlign: "end",
+                                    color:
+                                      data?.massegeSentBy === loginUser.uid
+                                        ? "#075E54"
+                                        : "#fff",
+                                    opacity: "0.5",
+                                    fontSize: "1rem",
+                                  }}
+                                >
+                                  {massegeSendAtConverted === "Invalid Date"
+                                    ? "....."
+                                    : massegeSendAtConverted}
+                                </span>
+                              </Typography>
+                            </Tooltip>
                           </React.Fragment>
                         );
                       })
