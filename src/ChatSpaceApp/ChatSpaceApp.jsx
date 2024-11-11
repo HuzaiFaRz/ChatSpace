@@ -109,38 +109,6 @@ const ChatSpaceApp = () => {
   // Log Out
   // Log Out
 
-  // UserGetting
-  // UserGetting
-  useEffect(() => {
-    const UsersDocRef = query(
-      collection(db, "Users"),
-      orderBy("signupTime", "asc")
-    );
-    const allUsersSnapShot = onSnapshot(UsersDocRef, (snapshot) => {
-      const allUserDataSnapShot = snapshot.docs.map((allUsersData) => {
-        return {
-          allUserID: allUsersData.id,
-          allUserDATA: allUsersData.data(),
-        };
-      });
-      allUserDataSnapShot.forEach((data) => {
-        if (data.allUserID !== loginUser.uid) {
-          setOutSideUsers((prevSetOutSideUsers) => [
-            ...prevSetOutSideUsers,
-            data,
-          ]);
-        } else {
-          setCurrentUser(data);
-        }
-      });
-    });
-    return () => {
-      allUsersSnapShot();
-    };
-  }, []);
-  // UserGetting
-  // UserGetting
-
   // Side Bar and Modal
   // Side Bar and Modal
   const toggleRightDrawer = (anchor, open) => () => {
@@ -175,6 +143,37 @@ const ChatSpaceApp = () => {
 
   // Default Style
   // Default Style
+
+  // UserGetting
+  // UserGetting
+  useEffect(() => {
+    const UsersDocRef = query(
+      collection(db, "Users"),
+      orderBy("signupTime", "asc")
+    );
+    const allUsersSnapShot = onSnapshot(UsersDocRef, (snapshot) => {
+      const allUserDataSnapShot = snapshot.docs.map((allUsersData) => {
+        return {
+          allUserID: allUsersData.id,
+          allUserDATA: allUsersData.data(),
+        };
+      });
+      const outSideUserFiltered = allUserDataSnapShot.filter(
+        (data) => data.allUserID !== loginUser.uid
+      );
+      allUserDataSnapShot
+        .filter((data) => data.allUserID === loginUser.uid)
+        .map((data) => {
+          setCurrentUser(data);
+        });
+      setOutSideUsers(outSideUserFiltered);
+    });
+    return () => {
+      allUsersSnapShot();
+    };
+  }, []);
+  // UserGetting
+  // UserGetting
 
   // Message Saving Handler
   // Message Saving Handler
@@ -220,16 +219,13 @@ const ChatSpaceApp = () => {
       const filteredMessages = snapshot.docs
         .map((doc) => doc.data())
         .filter((data) => data.messageSendTo === chat.chatOpenData?.allUserID);
-
       setGetEachUserMessages(filteredMessages);
     });
-
-    console.log(getEachUserMessages);
 
     return () => {
       allMessagesSnapShot();
     };
-  }, [chat.chatOpenData]);
+  }, [chat.chatOpenData?.allUserID]);
   // Message Getting
   // Message Getting
 
