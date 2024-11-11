@@ -29,8 +29,8 @@ const LogIn = () => {
   const [logInLoading, setLogInLoading] = useState(false);
   const [passwordShow, setPasswordShow] = useState(false);
   const [logInInputs, setLogInInputs] = useState({
-    logInEmail: "huzaifa@gmail.com",
-    logInPassword: "123456",
+    logInEmail: "",
+    logInPassword: "",
   });
 
   const logInInputsArray = [
