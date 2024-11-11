@@ -19,7 +19,7 @@ const App = () => {
     createRoutesFromChildren(
       <React.Fragment>
         <Route
-          path="/chatspaceapp"
+          path="/"
           element={
             <ProtectedRoutes>
               <ChatSpaceApp />

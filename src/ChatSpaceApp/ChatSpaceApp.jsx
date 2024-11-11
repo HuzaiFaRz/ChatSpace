@@ -65,7 +65,6 @@ const ChatSpaceApp = () => {
   const [chatsLeftBarOpen, setChatsLeftBarOpen] = useState(false);
   const [openUserModal, setOpenUserModal] = useState(false);
   const [messageInput, setMessageInput] = useState("");
-  const [getMessages, setGetMessages] = useState();
   const [getEachUserMessages, setGetEachUserMessages] = useState();
   // States
   // States
@@ -88,7 +87,7 @@ const ChatSpaceApp = () => {
   const navigate = useNavigate();
   useEffect(() => {
     if (loginUser) {
-      navigate("/chatspaceapp");
+      navigate("/");
     }
   }, [loginUser, navigate]);
   // Login Checker
@@ -190,8 +189,7 @@ const ChatSpaceApp = () => {
         errorShow(allErrors.emptyMessegeError);
         return;
       }
-
-      const massegesCollection = collection(db, `Massages`);
+      const massegesCollection = collection(db, "Messages");
       await addDoc(massegesCollection, {
         messageText: messageInput,
         messageSentAt: serverTimestamp(),
@@ -210,35 +208,37 @@ const ChatSpaceApp = () => {
   // Message Saving Handler
   // Message Saving Handler
 
+  // Message Getting
+  // Message Getting
   useEffect(() => {
-    const messageRef = query(
-      collection(db, "Massages"),
+    const MessagesDocRef = query(
+      collection(db, "Messages"),
       orderBy("messageSentAt", "asc")
     );
-    onSnapshot(messageRef, (doc) => {
-      const gettingMessages = doc.docs.map((data) => {
-        return data.data();
-      });
-      setGetMessages(gettingMessages);
-      if (messageBody.current) {
-        messageBody.current.scrollTop = messageBody.current.scrollHeight;
-      }
-    });
-  }, []);
 
-  const gettingEachUserMessages = (id) => {
-    const filteringEachUserMessages = getMessages?.filter((data) => {
-      return data.messageSendTo === id;
+    const allMessagesSnapShot = onSnapshot(MessagesDocRef, (snapshot) => {
+      const filteredMessages = snapshot.docs
+        .map((doc) => doc.data())
+        .filter((data) => data.messageSendTo === chat.chatOpenData?.allUserID);
+
+      setGetEachUserMessages(filteredMessages);
     });
-    setGetEachUserMessages(filteringEachUserMessages);
-  };
+
+    console.log(getEachUserMessages);
+
+    return () => {
+      allMessagesSnapShot();
+    };
+  }, [chat.chatOpenData]);
+  // Message Getting
+  // Message Getting
 
   useEffect(() => {
     if (messageBody.current) {
       messageBody.current.scrollTop = messageBody.current.scrollHeight;
       return;
     }
-  }, [getMessages]);
+  }, [getEachUserMessages]);
 
   const contacts =
     outSideUsers.length === 0 ? (
@@ -276,7 +276,6 @@ const ChatSpaceApp = () => {
                 chatOpen: true,
                 chatOpenData: data,
               }));
-              gettingEachUserMessages(data.allUserID);
             }}
           >
             <Box
@@ -657,7 +656,7 @@ const ChatSpaceApp = () => {
                       padding: "10px 10px",
                     }}
                   >
-                    {getEachUserMessages.length === 0 ? (
+                    {getEachUserMessages?.length === 0 ? (
                       <Typography
                         sx={{
                           width: "100%",
@@ -673,7 +672,7 @@ const ChatSpaceApp = () => {
                         No Messeges
                       </Typography>
                     ) : (
-                      getEachUserMessages.map((data, index) => {
+                      getEachUserMessages?.map((data, index) => {
                         const { messageSentBy, messageText } = data;
                         const messageSendAtConvert =
                           data?.messageSentAt?.seconds * 1000 +
