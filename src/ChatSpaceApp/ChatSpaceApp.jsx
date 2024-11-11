@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, Fragment, useEffect, useRef } from "react";
 import {
   Button,
@@ -50,65 +51,111 @@ import PropTypes from "prop-types";
 import { useAuth } from "../Utilities/AuthProvider";
 
 const ChatSpaceApp = () => {
-  const messegeBody = useRef(null);
-  const [currentUserData, setCurrentUserData] = useState();
-  const [allUsersData, setAllUserData] = useState([]);
   const { loginUser } = useAuth();
-  const navigate = useNavigate();
-  const [passingUser, setPassingUser] = useState();
-  const [chatOpen, setChatOpen] = useState(false);
+  // States
+  // States
+  const [outSideUsers, setOutSideUsers] = useState([]);
+  const [currentUser, setCurrentUser] = useState({});
+  const [logOutLoading, setLogOutLoading] = useState(false);
+  const [chat, setChat] = useState({
+    chatOpen: false,
+    chatOpenData: undefined,
+  });
+  const [profileRightBarOpen, setProfileRightBarOpen] = useState(false);
+  const [chatsLeftBarOpen, setChatsLeftBarOpen] = useState(false);
+  const [openUserModal, setOpenUserModal] = useState(false);
+  const [messageInput, setMessageInput] = useState("");
+  const [getMessages, setGetMessages] = useState();
+  const [getEachUserMessages, setGetEachUserMessages] = useState();
+  // States
+  // States
 
+  // Massege Scroll Bar Set
+  // Massege Scroll Bar Set
+  const messageBody = useRef(null);
   useEffect(() => {
-    if (loginUser) {
-      navigate("/");
-    }
-    if (chatOpen) {
-      if (messegeBody.current) {
-        messegeBody.current.scrollTop = messegeBody.current.scrollHeight;
+    if (chat.chatOpen) {
+      if (messageBody.current) {
+        messageBody.current.scrollTop = messageBody.current.scrollHeight;
       }
     }
-  }, [chatOpen, loginUser, navigate]);
+  }, [chat.chatOpen]);
+  // Massege Scroll Bar Set
+  // Massege Scroll Bar Set
 
+  // Login Checker
+  // Login Checker
+  const navigate = useNavigate();
   useEffect(() => {
     if (loginUser) {
-      (async () => {
-        try {
-          const userDocRef = doc(db, "Users", loginUser.uid);
-          const response = await getDoc(userDocRef);
-          setCurrentUserData(response.data());
-        } catch (error) {
-          errorShow(error.messege);
-        }
-      })();
+      navigate("/chatspaceapp");
     }
-  }, [loginUser]);
+  }, [loginUser, navigate]);
+  // Login Checker
+  // Login Checker
 
+  // Log Out
+  // Log Out
+  const logOutHandler = async () => {
+    try {
+      setLogOutLoading(true);
+      await signOut(auth);
+      setLogOutLoading(false);
+      successShow(allSuccess.signOutSuccess);
+    } catch (error) {
+      setLogOutLoading(false);
+      errorShow(error.messege || allErrors.logOutError);
+    }
+  };
+  // Log Out
+  // Log Out
+
+  // UserGetting
+  // UserGetting
   useEffect(() => {
-    const allUsersDocRef = query(
+    const UsersDocRef = query(
       collection(db, "Users"),
       orderBy("signupTime", "asc")
     );
-    const gettingAllUserRealTime = onSnapshot(allUsersDocRef, (doc) => {
-      const onlyGettingOutSideUsers = doc.docs.filter((e) => {
-        return e.id !== loginUser?.uid;
+    const allUsersSnapShot = onSnapshot(UsersDocRef, (snapshot) => {
+      const allUserDataSnapShot = snapshot.docs.map((allUsersData) => {
+        return {
+          allUserID: allUsersData.id,
+          allUserDATA: allUsersData.data(),
+        };
       });
-      const updatedUsersData = onlyGettingOutSideUsers.map((data) => {
-        return data.id, data.data();
+      allUserDataSnapShot.forEach((data) => {
+        if (data.allUserID !== loginUser.uid) {
+          setOutSideUsers((prevSetOutSideUsers) => [
+            ...prevSetOutSideUsers,
+            data,
+          ]);
+        } else {
+          setCurrentUser(data);
+        }
       });
-      setAllUserData(updatedUsersData);
     });
-    return () => gettingAllUserRealTime();
-  }, [loginUser?.uid]);
+    return () => {
+      allUsersSnapShot();
+    };
+  }, []);
+  // UserGetting
+  // UserGetting
 
-  const [logOutLoading, setLogOutLoading] = useState(false);
-  const [profileRightBarOpen, setProfileRightBarOpen] = useState(false);
-  const [contactsLeftBarOpen, setContactsLeftBarOpen] = useState(false);
+  // Side Bar and Modal
+  // Side Bar and Modal
   const toggleRightDrawer = (anchor, open) => () => {
     setProfileRightBarOpen({ ...profileRightBarOpen, [anchor]: open });
   };
   const toggleLeftDrawer = (anchor, open) => () => {
-    setContactsLeftBarOpen({ ...contactsLeftBarOpen, [anchor]: open });
+    setChatsLeftBarOpen({ ...chatsLeftBarOpen, [anchor]: open });
   };
+  const userModalHandler = () => setOpenUserModal(!openUserModal);
+  // Side Bar and Modal
+  // Side Bar and Modal
+
+  // Default Style
+  // Default Style
   const buttonStyled = {
     padding: "10px 15px",
     backgroundColor: "white",
@@ -127,170 +174,128 @@ const ChatSpaceApp = () => {
     fontSize: "1rem",
   };
 
-  const logOutHandler = async () => {
-    try {
-      setLogOutLoading(true);
-      await signOut(auth);
-      setLogOutLoading(false);
-      successShow(allSuccess.signOutSuccess);
-    } catch (error) {
-      setLogOutLoading(false);
-      errorShow(error.messege);
-    }
-  };
-  const [openUserModal, setOpenUserModal] = useState(false);
-  const userModalHandler = () => setOpenUserModal(!openUserModal);
+  // Default Style
+  // Default Style
 
-  const [massegeInput, setMassegeInput] = useState({
-    massegeText: "",
-    massegeSentAt: "",
-    massegeSentBy: "",
-  });
-
-  const [massegeTyping, setMassegeTyping] = useState(
-    massegeInput.massegeSentBy
-  );
-
-  const massegeHandler = (event) => {
-    setMassegeTyping("Typing");
-    setMassegeInput((prevMassegeInput) => ({
-      ...prevMassegeInput,
-      massegeText: event.target.value,
-      massegeSentAt: "",
-      massegeSentBy: loginUser.uid,
-    }));
-  };
-
-  const massegeFormHandler = async (event) => {
+  // Message Saving Handler
+  // Message Saving Handler
+  const messageFormHandler = async (event) => {
     event.preventDefault();
     try {
-      if (!massegeInput.massegeText) {
+      if (
+        !messageInput ||
+        /^\s*$/.test(messageInput) ||
+        messageInput.trim().length === 0
+      ) {
         errorShow(allErrors.emptyMessegeError);
         return;
       }
-      const massegesCollection = collection(db, `Masseges`);
-      massegeInput.massegeSentAt = serverTimestamp();
-      await addDoc(massegesCollection, massegeInput);
-      if (messegeBody.current) {
-        messegeBody.current.scrollTop = messegeBody.current.scrollHeight;
+
+      const massegesCollection = collection(db, `Massages`);
+      await addDoc(massegesCollection, {
+        messageText: messageInput,
+        messageSentAt: serverTimestamp(),
+        messageSentBy: loginUser.uid,
+        messageSendTo: chat.chatOpenData?.allUserID,
+      });
+      setMessageInput("");
+      if (messageBody.current) {
+        messageBody.current.scrollTop = messageBody.current.scrollHeight;
       }
-      setMassegeInput((prevMassegeInput) => ({
-        ...prevMassegeInput,
-        massegeText: "",
-        massegeSentAt: "",
-        massegeSentBy: "",
-      }));
       successShow(allSuccess.messegeSentSuccess);
     } catch (error) {
       errorShow(error.messege);
     }
   };
+  // Message Saving Handler
+  // Message Saving Handler
 
-  const [getMessege, setGetMasseges] = useState();
   useEffect(() => {
-    (() => {
-      const messgesRef = query(
-        collection(db, "Masseges"),
-        orderBy("massegeSentAt", "asc")
-      );
-      onSnapshot(messgesRef, (doc) => {
-        const newMessages = doc.docs.map((data) => data.data());
-        setGetMasseges(newMessages);
-        if (messegeBody.current) {
-          messegeBody.current.scrollTop = messegeBody.current.scrollHeight;
-        }
+    const messageRef = query(
+      collection(db, "Massages"),
+      orderBy("messageSentAt", "asc")
+    );
+    onSnapshot(messageRef, (doc) => {
+      const gettingMessages = doc.docs.map((data) => {
+        return data.data();
       });
-    })();
+      setGetMessages(gettingMessages);
+      if (messageBody.current) {
+        messageBody.current.scrollTop = messageBody.current.scrollHeight;
+      }
+    });
   }, []);
 
+  const gettingEachUserMessages = (id) => {
+    const filteringEachUserMessages = getMessages?.filter((data) => {
+      return data.messageSendTo === id;
+    });
+    setGetEachUserMessages(filteringEachUserMessages);
+  };
+
   useEffect(() => {
-    if (messegeBody.current) {
-      messegeBody.current.scrollTop = messegeBody.current.scrollHeight;
+    if (messageBody.current) {
+      messageBody.current.scrollTop = messageBody.current.scrollHeight;
       return;
     }
-  }, [getMessege, passingUser]);
+  }, [getMessages]);
 
-  // const [massegeSendByUserGetting, setMassegeSendByUserGetting] = useState();
-
-  // useEffect(() => {
-  //   getMessege?.map((data) => {
-  //     try {
-  //       (async () => {
-  //         const userMassegeRef = doc(db, "Users", data.massegeSentBy);
-  //         const response = await getDoc(userMassegeRef);
-  //         console.log(response.data());
-  //         setMassegeSendByUserGetting(response.data());
-  //       })();
-  //     } catch (error) {
-  //       console.log(error);
-  //       errorShow(error.messege);
-  //     }
-  //   });
-  // }, [getMessege]);
-
-  // console.log(massegeSendByUserGetting?.signUpName);
   const contacts =
-    allUsersData.length === 0 ? (
-      <React.Fragment>
-        <Typography
-          sx={{
-            width: "100%",
-            textAlign: "center",
-            fontSize: "2em",
-            color: "#fff",
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%,-50%)",
-          }}
-        >
-          No User Found
-        </Typography>
-      </React.Fragment>
+    outSideUsers.length === 0 ? (
+      <CircularProgress
+        size={"5rem"}
+        sx={{
+          position: "absolute",
+          color: "white",
+        }}
+      />
     ) : (
-      allUsersData.map((usersData, index) => {
+      outSideUsers.map((data, index) => {
         return (
-          <React.Fragment key={index}>
-            <List
+          <List
+            key={index}
+            sx={{
+              width: "100%",
+              "&:hover": {
+                backgroundColor: "rgba(0,0,0,0.3)",
+              },
+              "&:focus": {
+                backgroundColor: "rgba(0,0,0,0.6)",
+              },
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "center",
+              gap: "10px",
+              padding: "15px 15px",
+              cursor: "pointer",
+            }}
+            onClick={() => {
+              setChat((prevSetChat) => ({
+                ...prevSetChat,
+                chatOpen: true,
+                chatOpenData: data,
+              }));
+              gettingEachUserMessages(data.allUserID);
+            }}
+          >
+            <Box
+              component={"img"}
               sx={{
-                width: "100%",
-                "&:hover": {
-                  backgroundColor: "rgba(0,0,0,0.3)",
-                },
-                "&:focus": {
-                  backgroundColor: "rgba(0,0,0,0.6)",
-                },
-                display: "flex",
-                flexDirection: "row",
-                justifyContent: "space-between",
-                alignItems: "center",
-                gap: "10px",
-                padding: "15px 15px",
-                cursor: "pointer",
+                borderRadius: "50%",
+                width: "30px",
+                height: "30px",
+                objectFit: "cover",
+                objectPosition: "center",
               }}
-              onClick={() => {
-                setChatOpen(true);
-                setPassingUser(usersData);
-              }}
-            >
-              <Box
-                component={"img"}
-                sx={{
-                  borderRadius: "50%",
-                  width: "30px",
-                  height: "30px",
-                  objectFit: "cover",
-                  objectPosition: "center",
-                }}
-                src={usersData?.signUpProfile}
-                alt="Profile Img"
-              />
-              <ListItemText
-                primary={usersData?.signUpName}
-                sx={{ color: "#fff" }}
-              />
-            </List>
-          </React.Fragment>
+              src={data?.allUserDATA?.signUpProfile}
+              alt="Profile Img"
+            />
+            <ListItemText
+              primary={data?.allUserDATA?.signUpName}
+              sx={{ color: "#fff" }}
+            />
+          </List>
         );
       })
     );
@@ -306,7 +311,7 @@ const ChatSpaceApp = () => {
           alignItems: "center",
           padding: "10px 15px",
           width: "100%",
-          height: "max-content",
+          height: { xs: "15vh", sm: "8vh" },
           backgroundColor: "#128C7E",
           boxShadow: "none",
           borderBottom: "1px solid white",
@@ -337,7 +342,7 @@ const ChatSpaceApp = () => {
               borderRadius: "20px",
             }}
           >
-            Contacts
+            Chats
             <ContactsIcon sx={iconStyled}></ContactsIcon>
           </Button>
           <Typography
@@ -348,7 +353,6 @@ const ChatSpaceApp = () => {
             ChatSpace
           </Typography>
         </Box>
-
         <Box
           sx={{
             display: "flex",
@@ -362,7 +366,6 @@ const ChatSpaceApp = () => {
             Profile
             <AccountBoxIcon sx={iconStyled}></AccountBoxIcon>
           </Button>
-
           <Button
             onClick={logOutHandler}
             disabled={logOutLoading ? true : false}
@@ -380,7 +383,7 @@ const ChatSpaceApp = () => {
       <Box>
         <Drawer
           anchor={"left"}
-          open={contactsLeftBarOpen["left"]}
+          open={chatsLeftBarOpen["left"]}
           onClose={toggleLeftDrawer("left", false)}
           sx={{
             display: { xs: "block", sm: "none" },
@@ -414,7 +417,7 @@ const ChatSpaceApp = () => {
                 objectFit: "cover",
                 objectPosition: "center",
               }}
-              src={currentUserData?.signUpProfile}
+              src={currentUser?.allUserDATA?.signUpProfile}
               alt="Profile Img"
             />
             <Typography
@@ -424,10 +427,10 @@ const ChatSpaceApp = () => {
                 fontSize: { xs: "2rem", sm: "2rem" },
               }}
             >
-              Hi ! {currentUserData?.signUpName}
+              Hi ! {currentUser?.allUserDATA?.signUpName}
             </Typography>
             <Typography id="modal-modal-description" sx={{ color: "white" }}>
-              {currentUserData?.signUpEmail}
+              {currentUser?.allUserDATA?.signUpEmail}
             </Typography>
           </Box>
         </Drawer>
@@ -435,7 +438,7 @@ const ChatSpaceApp = () => {
       <Box
         sx={{
           width: "100%",
-          height: { xs: "88vh", sm: "93vh" },
+          height: { xs: "85vh", sm: "92vh" },
           display: "flex",
           flexDirection: "row",
           justifyContent: "center",
@@ -446,7 +449,7 @@ const ChatSpaceApp = () => {
           sx={{
             display: { xs: "none", sm: "flex" },
             flexDirection: "column",
-            justifyContent: "flex-start",
+            justifyContent: outSideUsers.length !== 0 ? "flex-start" : "center",
             alignItems: "center",
             gap: "15px",
             width: { xs: "0%", sm: "40%" },
@@ -459,6 +462,7 @@ const ChatSpaceApp = () => {
         >
           {contacts}
         </Box>
+
         <Box
           sx={{
             display: "flex",
@@ -471,27 +475,33 @@ const ChatSpaceApp = () => {
             position: "relative",
           }}
         >
-          {chatOpen ? (
+          {chat.chatOpen ? (
             <>
               <Box
                 id="messegeDiv"
                 sx={{
                   width: "100%",
-                  height: "90%",
+                  height: "100%",
+                  position: "relative",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
                 }}
               >
                 <Box
                   id="massegeHeader"
                   sx={{
                     width: "100%",
-
-                    height: "10%",
                     backgroundColor: "#075E54",
                     display: "flex",
                     flexDirection: "row",
                     justifyContent: "space-between",
                     aligmItems: "center",
                     padding: "10px 10px",
+                    borderBottom: "1px solid #fff",
+                    position: "absolute",
+                    top: "0%",
+                    height: "10%",
                   }}
                 >
                   <List
@@ -540,7 +550,7 @@ const ChatSpaceApp = () => {
                             objectFit: "cover",
                             objectPosition: "center",
                           }}
-                          src={passingUser?.signUpProfile}
+                          src={chat.chatOpenData?.allUserDATA?.signUpProfile}
                           alt="Profile Img"
                         />
                         <Box>
@@ -549,18 +559,17 @@ const ChatSpaceApp = () => {
                             variant="h6"
                             component="h2"
                           >
-                            {passingUser?.signUpName}
+                            {chat.chatOpenData?.allUserDATA?.signUpName}
                           </Typography>
                           <Typography
                             id="modal-modal-description"
                             sx={{ mt: 2 }}
                           >
-                            {passingUser?.signUpEmail}
+                            {chat.chatOpenData?.allUserDATA?.signUpEmail}
                           </Typography>
                         </Box>
                       </Box>
                     </Modal>
-
                     <Box
                       component={"img"}
                       sx={{
@@ -570,11 +579,11 @@ const ChatSpaceApp = () => {
                         objectFit: "cover",
                         objectPosition: "center",
                       }}
-                      src={passingUser?.signUpProfile}
+                      src={chat.chatOpenData?.allUserDATA?.signUpProfile}
                       alt="Profile Img"
                     />
                     <ListItemText
-                      primary={passingUser?.signUpName}
+                      primary={chat.chatOpenData?.allUserDATA?.signUpName}
                       sx={{ color: "#fff" }}
                     />
                   </List>
@@ -629,11 +638,11 @@ const ChatSpaceApp = () => {
                   </Box>
                 </Box>
                 <Box
-                  ref={messegeBody}
+                  ref={messageBody}
                   id="messegeBody"
                   sx={{
                     width: "100%",
-                    height: "90%",
+                    height: "80%",
                     overflowX: "hidden",
                   }}
                 >
@@ -648,81 +657,7 @@ const ChatSpaceApp = () => {
                       padding: "10px 10px",
                     }}
                   >
-                    {getMessege.length !== 0 ? (
-                      getMessege.map((data, index) => {
-                        const massegeSendAtConvert =
-                          data?.massegeSentAt?.seconds * 1000 +
-                          data?.massegeSentAt?.nanoseconds / 1000000;
-
-                        const massegeSendAtConverted = new Date(
-                          massegeSendAtConvert
-                        )?.toLocaleString("en-US", {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                          hour12: "true",
-                          weekday: "short",
-                          year: "2-digit",
-                          month: "2-digit",
-                          day: "2-digit",
-                        });
-
-                        return (
-                          <React.Fragment key={index}>
-                            <Tooltip title={data?.massegeSentBy}>
-                              <Typography
-                                id="messegetext"
-                                sx={{
-                                  color:
-                                    data?.massegeSentBy === loginUser.uid
-                                      ? "#075E54"
-                                      : "#fff",
-                                  backgroundColor:
-                                    data?.massegeSentBy === loginUser.uid
-                                      ? "#fff"
-                                      : "#075E54",
-                                  width: "300px",
-                                  minWidth: "max-content",
-                                  padding: "10px 10px",
-                                  borderRadius: "5px",
-                                  display: "flex",
-                                  flexDirection: "column",
-                                  gap: "10px",
-
-                                  alignItems: "flex-start",
-                                  alignSelf:
-                                    data?.massegeSentBy === loginUser.uid
-                                      ? "flex-end"
-                                      : "flex-start",
-
-                                  position: "relative",
-                                  overflow: "hidden",
-                                }}
-                              >
-                                {data?.massegeText}
-
-                                <span
-                                  id="messegeTime"
-                                  style={{
-                                    width: "100%",
-                                    textAlign: "end",
-                                    color:
-                                      data?.massegeSentBy === loginUser.uid
-                                        ? "#075E54"
-                                        : "#fff",
-                                    opacity: "0.5",
-                                    fontSize: "1rem",
-                                  }}
-                                >
-                                  {massegeSendAtConverted === "Invalid Date"
-                                    ? "....."
-                                    : massegeSendAtConverted}
-                                </span>
-                              </Typography>
-                            </Tooltip>
-                          </React.Fragment>
-                        );
-                      })
-                    ) : (
+                    {getEachUserMessages.length === 0 ? (
                       <Typography
                         sx={{
                           width: "100%",
@@ -737,59 +672,134 @@ const ChatSpaceApp = () => {
                       >
                         No Messeges
                       </Typography>
+                    ) : (
+                      getEachUserMessages.map((data, index) => {
+                        const { messageSentBy, messageText } = data;
+                        const messageSendAtConvert =
+                          data?.messageSentAt?.seconds * 1000 +
+                          data?.messageSentAt?.nanoseconds / 1000000;
+                        const messageSendAtConverted = new Date(
+                          messageSendAtConvert
+                        )?.toLocaleString("en-US", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          hour12: "true",
+                          weekday: "short",
+                          year: "2-digit",
+                          month: "2-digit",
+                          day: "2-digit",
+                        });
+                        return (
+                          <React.Fragment key={index}>
+                            <Typography
+                              id="messegetext"
+                              sx={{
+                                color:
+                                  messageSentBy === loginUser.uid
+                                    ? "#075E54"
+                                    : "#fff",
+                                backgroundColor:
+                                  messageSentBy === loginUser.uid
+                                    ? "#fff"
+                                    : "#075E54",
+                                width: "300px",
+                                minWidth: "max-content",
+                                padding: "10px 10px",
+                                borderRadius: "5px",
+                                display: "flex",
+                                flexDirection: "column",
+                                gap: "10px",
+                                alignItems: "flex-start",
+                                alignSelf:
+                                  messageSentBy === loginUser.uid
+                                    ? "flex-end"
+                                    : "flex-start",
+                                position: "relative",
+                                overflow: "hidden",
+                              }}
+                            >
+                              {messageText}
+                              <span
+                                id="messegeTime"
+                                style={{
+                                  width: "100%",
+                                  textAlign: "end",
+                                  color:
+                                    messageSentBy === loginUser.uid
+                                      ? "#075E54"
+                                      : "#fff",
+                                  opacity: "0.5",
+                                  fontSize: "1rem",
+                                }}
+                              >
+                                {messageSendAtConverted === "Invalid Date"
+                                  ? "....."
+                                  : messageSendAtConverted}
+                              </span>
+                            </Typography>
+                          </React.Fragment>
+                        );
+                      })
                     )}
                   </Box>
                 </Box>
-              </Box>
-              <Box
-                component={"form"}
-                id="messegeForm"
-                sx={{
-                  display: "flex",
-                  flexDirection: "row",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  width: "100%",
-                  height: "10%",
-                  backgroundColor: "#075E54",
-                  padding: "10px 10px",
-                  borderLeft: "2px solid white",
-                }}
-                onSubmit={massegeFormHandler}
-              >
-                <Input
-                  type="text"
-                  placeholder="Type Messege"
-                  id="messegeInput"
+                <Box
+                  component={"form"}
+                  id="messegeForm footer"
                   sx={{
-                    width: { xs: "80%", md: "90%" },
-                    backgroundColor: "#fff",
-                    padding: "10px 15px",
-                    color: "#075E54",
-                    borderRadius: "20px",
+                    display: "flex",
+                    flexDirection: "row",
+                    justifyContent: "flex-start",
+                    alignItems: "center",
+                    width: "100%",
+                    backgroundColor: "#075E54",
+                    padding: "10px 10px",
+                    borderLeft: "2px solid white",
+                    position: "absolute",
+                    bottom: "0",
+                    height: "10%",
                   }}
-                  disableUnderline={true}
-                  value={massegeInput.massegeText}
-                  onChange={massegeHandler}
-                />
-
-                <IconButton
-                  type="submit"
-                  disabled={massegeInput.massegeText ? false : true}
-                  sx={{ width: { xs: "20%", md: "10%" } }}
+                  onSubmit={messageFormHandler}
                 >
-                  <SendIcon
+                  <Input
+                    type="text"
+                    placeholder="Type Messege"
+                    id="messegeInput"
                     sx={{
-                      transition: "all 0.1s linear",
-                      fontSize: "3rem",
-                      color: "#128C7E",
-                      padding: "5px 10px",
-                      cursor: "pointer",
-                      borderRadius: "50%",
+                      width: { xs: "80%", md: "90%" },
                       backgroundColor: "#fff",
+                      padding: "10px 15px",
+                      color: "#075E54",
+                      borderRadius: "20px",
                     }}
+                    disableUnderline={true}
+                    value={messageInput}
+                    onChange={(event) => setMessageInput(event.target.value)}
                   />
-                </IconButton>
+                  <IconButton
+                    type="submit"
+                    // disabled={
+                    //   !messageInput || /\s/.test(messageInput) ? true : false
+                    // }
+                    disabled={
+                      !messageInput ||
+                      /^\s*$/.test(messageInput) ||
+                      messageInput.trim().length === 0
+                    }
+                    sx={{ width: { xs: "20%", md: "10%" } }}
+                  >
+                    <SendIcon
+                      sx={{
+                        fontSize: "3rem",
+                        color: "#128C7E",
+                        padding: "5px 10px",
+                        cursor: "pointer",
+                        borderRadius: "50%",
+                        backgroundColor: "#fff",
+                      }}
+                    />
+                  </IconButton>
+                </Box>
               </Box>
             </>
           ) : (

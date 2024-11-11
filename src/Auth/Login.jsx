@@ -80,7 +80,7 @@ const LogIn = () => {
         logInInputs.logInPassword
       );
       setLoginUser(userCredential.user);
-      navigate("/", replace);
+      navigate("/chatspaceapp");
       setLogInLoading(false);
 
       setLogInInputs((prevSetLogInInputs) => ({

@@ -73,13 +73,13 @@ const allErrors = {
   passwordWeekError: "Password should be at least 6 characters",
   profileExtention: "File extension not supported!",
   emptyMessegeError: "Please Type Messege",
+  logOutError: "An error occurred while logging out",
 };
 const allSuccess = {
   signUpSuccess: "Account Created SuccessFully! You Can Now Log In.",
   logInSuccess: "Login SuccessFully!",
   signOutSuccess: "Sign Out SuccessFully",
   messegeSentSuccess: "Messege Sent",
-
 };
 
 export {

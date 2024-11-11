@@ -12,13 +12,14 @@ import Login from "./Auth/Login";
 import ChatSpaceApp from "./ChatSpaceApp/ChatSpaceApp";
 import ProtectedRoutes from "./ProtectedRoutes/ProtectedRoutes";
 import AuthProvider from "./Utilities/AuthProvider";
+import Error from "./ErrorComponent/Error";
 
 const App = () => {
   const router = createBrowserRouter(
     createRoutesFromChildren(
       <React.Fragment>
         <Route
-          path="/"
+          path="/chatspaceapp"
           element={
             <ProtectedRoutes>
               <ChatSpaceApp />
@@ -27,7 +28,7 @@ const App = () => {
         />
         <Route element={<Login />} path={"/login"} />
         <Route element={<SignUp />} path={"/signup"} />
-        <Route path="*" element={<Navigate to="/login" />} />
+        <Route path="*" element={<Error />} />
       </React.Fragment>
     )
   );
