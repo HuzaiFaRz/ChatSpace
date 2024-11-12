@@ -13,6 +13,8 @@ import {
   AppBar,
   Modal,
   Tooltip,
+  Fade,
+  Backdrop,
 } from "@mui/material";
 
 import {
@@ -35,6 +37,9 @@ import {
   setDoc,
   addDoc,
   ref,
+  deleteDoc,
+  updateDoc,
+  arrayUnion,
 } from "../Auth/firebase";
 
 import { useNavigate } from "react-router-dom";
@@ -47,8 +52,11 @@ import {
   Search as SearchIcon,
   Send as SendIcon,
 } from "@mui/icons-material";
+import DeleteIcon from "@mui/icons-material/Delete";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import PropTypes from "prop-types";
 import { useAuth } from "../Utilities/AuthProvider";
+import { toast, ToastContainer } from "react-toastify";
 
 const ChatSpaceApp = () => {
   const { loginUser } = useAuth();
@@ -64,6 +72,7 @@ const ChatSpaceApp = () => {
   const [profileRightBarOpen, setProfileRightBarOpen] = useState(false);
   const [chatsLeftBarOpen, setChatsLeftBarOpen] = useState(false);
   const [openUserModal, setOpenUserModal] = useState(false);
+  const [deleteMessageModal, setDeleteMessageModal] = useState(false);
   const [messageInput, setMessageInput] = useState("");
   const [getEachUserMessages, setGetEachUserMessages] = useState();
   // States
@@ -118,6 +127,8 @@ const ChatSpaceApp = () => {
     setChatsLeftBarOpen({ ...chatsLeftBarOpen, [anchor]: open });
   };
   const userModalHandler = () => setOpenUserModal(!openUserModal);
+  const deleteMessageModalHandler = () =>
+    setDeleteMessageModal(!deleteMessageModal);
   // Side Bar and Modal
   // Side Bar and Modal
 
@@ -190,6 +201,9 @@ const ChatSpaceApp = () => {
       }
       const massegesCollection = collection(db, "Messages");
       await addDoc(massegesCollection, {
+        messageDeleteForMe: false,
+        messageDeleteForAll: false,
+        messageEdited: false,
         messageText: messageInput,
         messageSentAt: serverTimestamp(),
         messageSentBy: loginUser.uid,
@@ -217,7 +231,12 @@ const ChatSpaceApp = () => {
 
     const allMessagesSnapShot = onSnapshot(MessagesDocRef, (snapshot) => {
       const filteredMessages = snapshot.docs
-        .map((doc) => doc.data())
+        .map((doc) => {
+          return {
+            id: doc.id,
+            ...doc.data(),
+          };
+        })
         .filter((data) => data.messageSendTo === chat.chatOpenData?.allUserID);
       setGetEachUserMessages(filteredMessages);
     });
@@ -235,6 +254,44 @@ const ChatSpaceApp = () => {
       return;
     }
   }, [getEachUserMessages]);
+
+  const [messageID, setMessageID] = useState();
+
+  const deleteMessageForMeHandler = async () => {
+    try {
+      const deleteMessageFormeRef = doc(db, "Messages", messageID);
+      setDeleteMessageModal(false);
+      await updateDoc(deleteMessageFormeRef, {
+        messageDeleteForMe: arrayUnion(loginUser.uid),
+      });
+      successShow(allSuccess.messageDeleteSuccess);
+    } catch (error) {
+      errorShow(allErrors.messageDeleteError || error.message);
+    }
+  };
+
+  const deleteMessageForAllHandler = async () => {
+    try {
+      const deleteMessageFormeRef = doc(db, "Messages", messageID);
+      setDeleteMessageModal(false);
+      await updateDoc(deleteMessageFormeRef, {
+        messageDeleteForAll: true,
+        messageText: "This Message Has Been Deleted",
+      });
+      successShow(allSuccess.messageDeleteSuccess);
+    } catch (error) {
+      errorShow(allErrors.messageDeleteError || error.message);
+    }
+  };
+
+  const messageCopyHandler = async (copyText) => {
+    try {
+      await navigator.clipboard.writeText(copyText);
+      successShow(allSuccess.messageCopySuccess);
+    } catch (error) {
+      errorShow(allErrors.messageCopyError || error.message);
+    }
+  };
 
   const contacts =
     outSideUsers.length === 0 ? (
@@ -297,6 +354,7 @@ const ChatSpaceApp = () => {
 
   return (
     <Fragment>
+      <ToastContainer />
       <AppBar
         position="static"
         sx={{
@@ -514,56 +572,68 @@ const ChatSpaceApp = () => {
                     <Modal
                       open={openUserModal}
                       onClose={userModalHandler}
-                      aria-labelledby="modal-modal-title"
-                      aria-describedby="modal-modal-description"
+                      closeAfterTransition
+                      slots={{ backdrop: Backdrop }}
+                      slotProps={{
+                        backdrop: {
+                          timeout: 500,
+                        },
+                      }}
                     >
-                      <Box
-                        sx={{
-                          position: "absolute",
-                          top: "50%",
-                          left: "50%",
-                          transform: "translate(-50%, -50%)",
-                          width: 400,
-                          backgroundColor: "#075E54",
-                          color: "white",
-                          border: "2px solid #fff",
-                          borderRadius: "20px",
-                          boxShadow: 24,
-                          p: 4,
-                          display: "flex",
-                          flexDirection: "row",
-                          justifyContent: "space-evenly",
-                          alignItems: "center",
-                        }}
-                      >
+                      <Fade in={openUserModal}>
                         <Box
-                          component={"img"}
                           sx={{
-                            borderRadius: "50%",
-                            width: "100px",
-                            height: "100px",
-                            objectFit: "cover",
-                            objectPosition: "center",
+                            position: "absolute",
+                            top: "50%",
+                            left: "50%",
+                            transform: "translate(-50%, -50%)",
+                            width: { xs: "100%", sm: "600px" },
+                            backgroundColor: "#075E54",
+                            color: "white",
+                            border: "2px solid #fff",
+                            borderRadius: "20px",
+                            boxShadow: 24,
+                            p: 4,
+                            display: "flex",
+                            flexDirection: "row",
+                            justifyContent: {
+                              xs: "space-between",
+                              sm: "center",
+                            },
+                            alignItems: "center",
+                            gap: { xs: "0px", sm: "20px" },
                           }}
-                          src={chat.chatOpenData?.allUserDATA?.signUpProfile}
-                          alt="Profile Img"
-                        />
-                        <Box>
-                          <Typography
-                            id="modal-modal-title"
-                            variant="h6"
-                            component="h2"
-                          >
-                            {chat.chatOpenData?.allUserDATA?.signUpName}
-                          </Typography>
-                          <Typography
-                            id="modal-modal-description"
-                            sx={{ mt: 2 }}
-                          >
-                            {chat.chatOpenData?.allUserDATA?.signUpEmail}
-                          </Typography>
+                        >
+                          <Box
+                            component={"img"}
+                            sx={{
+                              borderRadius: "50%",
+                              width: { xs: "60px", sm: "100px" },
+                              height: { xs: "60px", sm: "100px" },
+                              objectFit: "cover",
+                              objectPosition: "center",
+                            }}
+                            src={chat.chatOpenData?.allUserDATA?.signUpProfile}
+                            alt="Profile Img"
+                          />
+                          <Box>
+                            <Typography
+                              id="modal-modal-title"
+                              variant="h6"
+                              component="h6"
+                            >
+                              {chat.chatOpenData?.allUserDATA?.signUpName}
+                            </Typography>
+                            <Typography
+                              id="modal-modal-description"
+                              sx={{ mt: 2 }}
+                              component="p"
+                            >
+                              {chat.chatOpenData?.allUserDATA?.signUpEmail}
+                            </Typography>
+                          </Box>
                         </Box>
-                      </Box>
+                      </Fade>
                     </Modal>
                     <Box
                       component={"img"}
@@ -669,7 +739,13 @@ const ChatSpaceApp = () => {
                       </Typography>
                     ) : (
                       getEachUserMessages?.map((data, index) => {
-                        const { messageSentBy, messageText } = data;
+                        const {
+                          messageSentBy,
+                          messageText,
+                          messageDeleteForMe,
+                          messageDeleteForAll,
+                          messageEdited,
+                        } = data;
                         const messageSendAtConvert =
                           data?.messageSentAt?.seconds * 1000 +
                           data?.messageSentAt?.nanoseconds / 1000000;
@@ -684,58 +760,169 @@ const ChatSpaceApp = () => {
                           month: "2-digit",
                           day: "2-digit",
                         });
+
                         return (
                           <React.Fragment key={index}>
-                            <Typography
-                              id="messegetext"
-                              sx={{
-                                color:
-                                  messageSentBy === loginUser.uid
-                                    ? "#075E54"
-                                    : "#fff",
-                                backgroundColor:
-                                  messageSentBy === loginUser.uid
-                                    ? "#fff"
-                                    : "#075E54",
-                                width: "300px",
-                                minWidth: "max-content",
-                                padding: "10px 10px",
-                                borderRadius: "5px",
-                                display: "flex",
-                                flexDirection: "column",
-                                gap: "10px",
-                                alignItems: "flex-start",
-                                alignSelf:
-                                  messageSentBy === loginUser.uid
-                                    ? "flex-end"
-                                    : "flex-start",
-                                position: "relative",
-                                overflow: "hidden",
-                              }}
-                            >
-                              {messageText}
-                              <span
-                                id="messegeTime"
-                                style={{
-                                  width: "100%",
-                                  textAlign: "end",
+                            {messageDeleteForMe?.includes(
+                              loginUser.uid
+                            ) ? null : (
+                              <Box
+                                component={"div"}
+                                id="messege"
+                                sx={{
                                   color:
                                     messageSentBy === loginUser.uid
                                       ? "#075E54"
                                       : "#fff",
-                                  opacity: "0.5",
-                                  fontSize: "1rem",
+                                  backgroundColor:
+                                    messageSentBy === loginUser.uid
+                                      ? "#fff"
+                                      : "#075E54",
+                                  width: "300px",
+                                  minWidth: "max-content",
+                                  padding: "5px 10px",
+                                  borderRadius: "5px",
+                                  display: "flex",
+                                  flexDirection: "column",
+                                  gap: "5px",
+                                  opacity: messageDeleteForAll ? "0.5" : "1",
+                                  alignItems: "flex-start",
+                                  alignSelf:
+                                    messageSentBy === loginUser.uid
+                                      ? "flex-end"
+                                      : "flex-start",
                                 }}
                               >
-                                {messageSendAtConverted === "Invalid Date"
-                                  ? "....."
-                                  : messageSendAtConverted}
-                              </span>
-                            </Typography>
+                                <Typography
+                                  sx={{
+                                    fontSize: messageDeleteForAll
+                                      ? "14px"
+                                      : "15px",
+                                  }}
+                                >
+                                  {messageText}
+                                </Typography>
+
+                                {messageDeleteForAll || (
+                                  <Box
+                                    sx={{
+                                      width: "100%",
+                                      display: "flex",
+                                      flexDirection: "row",
+                                      justifyContent: "space-evenly",
+                                      alignItems: "center",
+                                      padding: "0px 10px",
+                                    }}
+                                    component={"div"}
+                                  >
+                                    <ContentCopyIcon
+                                      sx={{
+                                        color: "#075E54",
+                                        fontSize: "0.9rem",
+                                        cursor: "pointer",
+                                      }}
+                                      onClick={() => {
+                                        messageCopyHandler(messageText);
+                                      }}
+                                    />
+                                    {messageSentBy === loginUser.uid && (
+                                      <>
+                                        <Tooltip title={"Delete Message"}>
+                                          <DeleteIcon
+                                            sx={{
+                                              color: "#075E54",
+                                              fontSize: "1.1rem",
+                                              cursor: "pointer",
+                                            }}
+                                            onClick={() => {
+                                              deleteMessageModalHandler();
+                                              setMessageID(data.id);
+                                            }}
+                                          />
+                                        </Tooltip>
+                                      </>
+                                    )}
+
+                                    <span
+                                      id="messegeTime"
+                                      style={{
+                                        color:
+                                          messageSentBy === loginUser.uid
+                                            ? "#075E54"
+                                            : "#fff",
+                                        fontSize: "0.8rem",
+                                      }}
+                                    >
+                                      {messageSendAtConverted === "Invalid Date"
+                                        ? "Loading....."
+                                        : messageSendAtConverted}
+                                    </span>
+                                  </Box>
+                                )}
+                              </Box>
+                            )}
                           </React.Fragment>
                         );
                       })
                     )}
+
+                    <Modal
+                      open={deleteMessageModal}
+                      onClose={deleteMessageModalHandler}
+                      closeAfterTransition
+                      slots={{ backdrop: Backdrop }}
+                      slotProps={{
+                        backdrop: {
+                          timeout: 500,
+                        },
+                      }}
+                    >
+                      <Fade in={deleteMessageModal}>
+                        <Box
+                          sx={{
+                            position: "absolute",
+                            top: "50%",
+                            left: "50%",
+                            transform: "translate(-50%, -50%)",
+                            width: {
+                              xs: "100%",
+                              sm: "600px",
+                            },
+                            backgroundColor: "#075E54",
+                            color: "white",
+                            border: "2px solid #fff",
+                            borderRadius: "20px",
+                            boxShadow: 24,
+                            p: 4,
+                            display: "flex",
+                            flexDirection: "row",
+                            justifyContent: {
+                              xs: "space-between",
+                              sm: "center",
+                            },
+                            alignItems: "center",
+                            gap: { xs: "0px", sm: "20px" },
+                          }}
+                        >
+                          <Button
+                            sx={buttonStyled}
+                            onClick={() => {
+                              deleteMessageForMeHandler();
+                            }}
+                          >
+                            Delete For Me
+                          </Button>
+                          <Button
+                            sx={buttonStyled}
+                            onClick={() => {
+                              deleteMessageForAllHandler();
+                            }}
+                          >
+                            Delete For Everyone
+                          </Button>
+                        </Box>
+                      </Fade>
+                    </Modal>
                   </Box>
                 </Box>
                 <Box

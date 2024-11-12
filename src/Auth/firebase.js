@@ -21,6 +21,7 @@ import {
   orderBy,
   onSnapshot,
   serverTimestamp,
+  arrayUnion
 } from "firebase/firestore";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { toast } from "react-toastify";
@@ -74,12 +75,16 @@ const allErrors = {
   profileExtention: "File extension not supported!",
   emptyMessegeError: "Please Type Messege",
   logOutError: "An error occurred while logging out",
+  messageCopyError: "Failed to Copy Message",
+  messageDeleteError: "Error In Deleting Message",
 };
 const allSuccess = {
   signUpSuccess: "Account Created SuccessFully! You Can Now Log In.",
   logInSuccess: "Login SuccessFully!",
   signOutSuccess: "Sign Out SuccessFully",
   messegeSentSuccess: "Messege Sent",
+  messageCopySuccess: "Message Copied to Clipboard",
+  messageDeleteSuccess: "Message Deleted SuccessFully",
 };
 
 export {
@@ -101,6 +106,7 @@ export {
   getDocs,
   ref,
   uploadBytes,
+  arrayUnion,
   getDownloadURL,
   addDoc,
   collection,
