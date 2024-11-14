@@ -217,46 +217,61 @@ const ChatSpaceApp = () => {
 
   // Message Getting
   // Message Getting
-  const [messageMeGetting, setMessageMeGetting] = useState();
-  const [messageYouGetting, setMessageYouGetting] = useState();
+  const [messagesMe, setMessagesMe] = useState();
+  const [messagesYou, setMessagesYou] = useState();
+  const [allMessages, setAllMessages] = useState();
   useEffect(() => {
-    onSnapshot(
+    if (!chat?.chatOpenData?.allUserID) {
+      return;
+    }
+    const unsubscribeMe = onSnapshot(
       query(
         collection(db, "Messages"),
-        orderBy("messageSentAt", "asc"),
-        where("messageSendBy", "==", loginUser?.uid)
+        orderBy("messageSendAt", "asc"),
+        where("messageSendBy", "==", loginUser?.uid),
+        where("messageSendTo", "==", chat.chatOpenData?.allUserID)
       ),
+
       (snapshot) => {
-        const messagesMe = snapshot.docs.map((doc) => {
+        const messagesMeGetting = snapshot.docs.map((doc) => {
           return {
             id: doc.id,
             ...doc.data(),
           };
         });
-        setMessageMeGetting(messagesMe);
+        setMessagesMe(messagesMeGetting);
       }
     );
-    onSnapshot(
+
+    const unsubscribeYou = onSnapshot(
       query(
         collection(db, "Messages"),
-        orderBy("messageSentAt", "desc"),
-        where("messageSendTo", "==", !chat?.chatOpenData?.allUserID)
+        orderBy("messageSendAt", "asc"),
+        where("messageSendBy", "==", chat.chatOpenData?.allUserID),
+        where("messageSendTo", "==", loginUser?.uid)
       ),
       (snapshot) => {
-        const messagesYou = snapshot.docs.map((doc) => {
+        const messagesYouGetting = snapshot.docs.map((doc) => {
           return {
             id: doc.id,
             ...doc.data(),
           };
         });
-        setMessageYouGetting(messagesYou);
+        setMessagesYou(messagesYouGetting);
       }
     );
 
-    const combinedMessageg = [...messageMeGetting, ...messageYouGetting];
+    if (messagesMe && messagesYou) {
+      const combinedAllMessages = [...messagesMe, ...messagesYou];
+      setAllMessages(combinedAllMessages);
+      console.log(allMessages, combinedAllMessages);
+    }
 
-    console.log(combinedMessageg);
-  }, [chat.chatOpenData?.allUserID]);
+    return () => {
+      unsubscribeMe();
+      unsubscribeYou();
+    };
+  }, [chat.chatOpenData?.allUserID, loginUser?.uid]);
 
   // Message Getting
   // Message Getting
@@ -734,8 +749,7 @@ const ChatSpaceApp = () => {
                       padding: "10px 10px",
                     }}
                   >
-                    {[...messageMeGetting, ...messageYouGetting]?.length ===
-                    0 ? (
+                    {/* {messagesMe?.length === 0 ? (
                       <Typography
                         sx={{
                           width: "100%",
@@ -750,134 +764,132 @@ const ChatSpaceApp = () => {
                       >
                         No Messeges
                       </Typography>
-                    ) : (
-                      messageYouGetting?.map((data, index) => {
-                        console.log(data);
-
-                        const { messageSentBy, messageText, messageEdited } =
-                          data;
-                        const messageSendAtConvert =
-                          data?.messageSentAt?.seconds * 1000 +
-                          data?.messageSentAt?.nanoseconds / 1000000;
-                        const messageSendAtConverted = new Date(
-                          messageSendAtConvert
-                        )?.toLocaleString("en-US", {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                          hour12: "true",
-                          weekday: "short",
-                          year: "2-digit",
-                          month: "2-digit",
-                          day: "2-digit",
-                        });
-                        return (
-                          <React.Fragment key={index}>
-                            {data?.messageDeleteForMe?.includes(
-                              loginUser.uid
-                            ) === undefined ? (
-                              <Box
-                                component={"div"}
-                                id="messege"
+                    ) : ( */}
+                    {messagesMe?.map((data, index) => {
+                      const { messageSentBy, messageText, messageEdited } =
+                        data;
+                      const messageSendAtConvert =
+                        data?.messageSentAt?.seconds * 1000 +
+                        data?.messageSentAt?.nanoseconds / 1000000;
+                      const messageSendAtConverted = new Date(
+                        messageSendAtConvert
+                      )?.toLocaleString("en-US", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        hour12: "true",
+                        weekday: "short",
+                        year: "2-digit",
+                        month: "2-digit",
+                        day: "2-digit",
+                      });
+                      return (
+                        <React.Fragment key={index}>
+                          {data?.messageDeleteForMe?.includes(loginUser.uid) ===
+                          undefined ? (
+                            <Box
+                              component={"div"}
+                              id="messege"
+                              sx={{
+                                color:
+                                  messageSentBy === loginUser.uid
+                                    ? "#075E54"
+                                    : "#fff",
+                                backgroundColor:
+                                  messageSentBy === loginUser.uid
+                                    ? "#fff"
+                                    : "#075E54",
+                                width: "300px",
+                                minWidth: "max-content",
+                                padding: "5px 10px",
+                                borderRadius: "5px",
+                                display: "flex",
+                                flexDirection: "column",
+                                gap: "5px",
+                                opacity: data?.messageDeleteForAll
+                                  ? "0.5"
+                                  : "1",
+                                alignItems: "flex-start",
+                                alignSelf:
+                                  messageSentBy === loginUser.uid
+                                    ? "flex-end"
+                                    : "flex-start",
+                              }}
+                            >
+                              <Typography
                                 sx={{
-                                  color:
-                                    messageSentBy === loginUser.uid
-                                      ? "#075E54"
-                                      : "#fff",
-                                  backgroundColor:
-                                    messageSentBy === loginUser.uid
-                                      ? "#fff"
-                                      : "#075E54",
-                                  width: "300px",
-                                  minWidth: "max-content",
-                                  padding: "5px 10px",
-                                  borderRadius: "5px",
-                                  display: "flex",
-                                  flexDirection: "column",
-                                  gap: "5px",
-                                  opacity: data?.messageDeleteForAll
-                                    ? "0.5"
-                                    : "1",
-                                  alignItems: "flex-start",
-                                  alignSelf:
-                                    messageSentBy === loginUser.uid
-                                      ? "flex-end"
-                                      : "flex-start",
+                                  fontSize: data?.messageDeleteForAll
+                                    ? "14px"
+                                    : "15px",
                                 }}
                               >
-                                <Typography
+                                {data?.messageDeleteForAll
+                                  ? "This Message Has Been Deleted"
+                                  : messageText}
+                              </Typography>
+
+                              {data?.messageDeleteForAll || (
+                                <Box
                                   sx={{
-                                    fontSize: data?.messageDeleteForAll
-                                      ? "14px"
-                                      : "15px",
+                                    width: "100%",
+                                    display: "flex",
+                                    flexDirection: "row",
+                                    justifyContent: "space-evenly",
+                                    alignItems: "center",
+                                    padding: "0px 10px",
                                   }}
+                                  component={"div"}
                                 >
-                                  {data?.messageDeleteForAll
-                                    ? "This Message Has Been Deleted"
-                                    : messageText}
-                                </Typography>
-
-                                {data?.messageDeleteForAll || (
-                                  <Box
+                                  <ContentCopyIcon
                                     sx={{
-                                      width: "100%",
-                                      display: "flex",
-                                      flexDirection: "row",
-                                      justifyContent: "space-evenly",
-                                      alignItems: "center",
-                                      padding: "0px 10px",
+                                      color: "#075E54",
+                                      fontSize: "0.9rem",
+                                      cursor: "pointer",
                                     }}
-                                    component={"div"}
-                                  >
-                                    <ContentCopyIcon
-                                      sx={{
-                                        color: "#075E54",
-                                        fontSize: "0.9rem",
-                                        cursor: "pointer",
-                                      }}
-                                      onClick={() => {
-                                        messageCopyHandler(messageText);
-                                      }}
-                                    />
-                                    {messageSentBy === loginUser.uid && (
-                                      <>
-                                        <Tooltip title={"Delete Message"}>
-                                          <DeleteIcon
-                                            sx={{
-                                              color: "#075E54",
-                                              fontSize: "1.1rem",
-                                              cursor: "pointer",
-                                            }}
-                                            onClick={() => {
-                                              deleteMessageModalHandler();
-                                              setMessageID(data.id);
-                                            }}
-                                          />
-                                        </Tooltip>
-                                      </>
-                                    )}
+                                    onClick={() => {
+                                      messageCopyHandler(messageText);
+                                    }}
+                                  />
+                                  {messageSentBy === loginUser.uid && (
+                                    <>
+                                      <Tooltip title={"Delete Message"}>
+                                        <DeleteIcon
+                                          sx={{
+                                            color: "#075E54",
+                                            fontSize: "1.1rem",
+                                            cursor: "pointer",
+                                          }}
+                                          onClick={() => {
+                                            deleteMessageModalHandler();
+                                            setMessageID(data.id);
+                                          }}
+                                        />
+                                      </Tooltip>
+                                    </>
+                                  )}
 
-                                    <span
-                                      id="messegeTime"
-                                      style={{
-                                        color:
-                                          messageSentBy === loginUser.uid
-                                            ? "#075E54"
-                                            : "#fff",
-                                        fontSize: "0.8rem",
-                                      }}
-                                    >
-                                      {messageSendAtConverted === "Invalid Date"
-                                        ? "Loading....."
-                                        : messageSendAtConverted}
-                                    </span>
-                                  </Box>
-                                )}
-                              </Box>
-                            ) : null}
-                          </React.Fragment>
-                        );
-                      })
-                    )}
+                                  <span
+                                    id="messegeTime"
+                                    style={{
+                                      color:
+                                        messageSentBy === loginUser.uid
+                                          ? "#075E54"
+                                          : "#fff",
+                                      fontSize: "0.8rem",
+                                    }}
+                                  >
+                                    {messageSendAtConverted === "Invalid Date"
+                                      ? "Loading....."
+                                      : messageSendAtConverted}
+                                  </span>
+                                </Box>
+                              )}
+                            </Box>
+                          ) : null}
+                        </React.Fragment>
+                      );
+                    })}
+
+                    {/* )} */}
 
                     <Modal
                       open={deleteMessageModal}
