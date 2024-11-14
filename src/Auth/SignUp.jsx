@@ -45,6 +45,7 @@ const SignUp = () => {
     signupTime: serverTimestamp(),
   });
 
+
   const signUpInputsArray = [
     {
       inputCommonName: "signUpName",
@@ -86,8 +87,9 @@ const SignUp = () => {
     try {
       event.preventDefault();
       if (
-        /\s/.test(signUpInputs.signUpEmail) ||
-        /\s/.test(signUpInputs.signUpPassword)
+        /^\s*$/.test(signUpInputs.signUpName) ||
+        /^\s*$/.test(signUpInputs.signUpEmail) ||
+        /^\s*$/.test(signUpInputs.signUpPassword)
       ) {
         errorShow(allErrors.blankSpace);
         return;
@@ -128,6 +130,7 @@ const SignUp = () => {
       signUpInputs.signUpProfile = URL;
       const usersDoc = doc(db, "Users", user.uid);
       await setDoc(usersDoc, signUpInputs);
+      successShow(allSuccess.signUpSuccess);
       setSignUpLoading(false);
       setSignUpInputs((prevSetSignUpInputs) => ({
         ...prevSetSignUpInputs,
@@ -137,7 +140,6 @@ const SignUp = () => {
         signUpPassword: "",
         signupTime: "",
       }));
-      successShow(allSuccess.signUpSuccess);
       navigate("/login");
     } catch (error) {
       if (error.message === `Firebase: Error (auth/email-already-in-use).`) {

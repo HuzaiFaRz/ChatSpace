@@ -58,8 +58,8 @@ const LogIn = () => {
     try {
       event.preventDefault();
       if (
-        /\s/.test(logInInputs.logInEmail) ||
-        /\s/.test(logInInputs.logInPassword)
+        /^\s*$/.test(logInInputs.logInEmail) ||
+        /^\s*$/.test(logInInputs.logInPassword)
       ) {
         errorShow(allErrors.blankSpace);
         return;
@@ -80,7 +80,7 @@ const LogIn = () => {
         logInInputs.logInPassword
       );
       setLoginUser(userCredential.user);
-      navigate("/", replace);
+      navigate("/");
       setLogInLoading(false);
       setLogInInputs((prevSetLogInInputs) => ({
         ...prevSetLogInInputs,

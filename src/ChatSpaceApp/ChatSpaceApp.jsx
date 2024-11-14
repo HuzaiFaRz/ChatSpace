@@ -23,23 +23,19 @@ import {
   errorShow,
   successShow,
   allSuccess,
-  getDocs,
   collection,
-  where,
   query,
   db,
   orderBy,
   doc,
-  getDoc,
   onSnapshot,
   serverTimestamp,
   allErrors,
-  setDoc,
   addDoc,
-  ref,
-  deleteDoc,
   updateDoc,
   arrayUnion,
+  deleteField,
+  where,
 } from "../Auth/firebase";
 
 import { useNavigate } from "react-router-dom";
@@ -56,7 +52,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import PropTypes from "prop-types";
 import { useAuth } from "../Utilities/AuthProvider";
-import { toast, ToastContainer } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 
 const ChatSpaceApp = () => {
   const { loginUser } = useAuth();
@@ -201,12 +197,10 @@ const ChatSpaceApp = () => {
       }
       const massegesCollection = collection(db, "Messages");
       await addDoc(massegesCollection, {
-        messageDeleteForMe: false,
-        messageDeleteForAll: false,
         messageEdited: false,
         messageText: messageInput,
-        messageSentAt: serverTimestamp(),
-        messageSentBy: loginUser.uid,
+        messageSendAt: serverTimestamp(),
+        messageSendBy: loginUser.uid,
         messageSendTo: chat.chatOpenData?.allUserID,
       });
       setMessageInput("");
@@ -223,30 +217,51 @@ const ChatSpaceApp = () => {
 
   // Message Getting
   // Message Getting
+  const [messageMeGetting, setMessageMeGetting] = useState();
+  const [messageYouGetting, setMessageYouGetting] = useState();
   useEffect(() => {
-    const MessagesDocRef = query(
-      collection(db, "Messages"),
-      orderBy("messageSentAt", "asc")
-    );
-
-    const allMessagesSnapShot = onSnapshot(MessagesDocRef, (snapshot) => {
-      const filteredMessages = snapshot.docs
-        .map((doc) => {
+    onSnapshot(
+      query(
+        collection(db, "Messages"),
+        orderBy("messageSentAt", "asc"),
+        where("messageSendBy", "==", loginUser?.uid)
+      ),
+      (snapshot) => {
+        const messagesMe = snapshot.docs.map((doc) => {
           return {
             id: doc.id,
             ...doc.data(),
           };
-        })
-        .filter((data) => data.messageSendTo === chat.chatOpenData?.allUserID);
-      setGetEachUserMessages(filteredMessages);
-    });
+        });
+        setMessageMeGetting(messagesMe);
+      }
+    );
+    onSnapshot(
+      query(
+        collection(db, "Messages"),
+        orderBy("messageSentAt", "desc"),
+        where("messageSendTo", "==", !chat?.chatOpenData?.allUserID)
+      ),
+      (snapshot) => {
+        const messagesYou = snapshot.docs.map((doc) => {
+          return {
+            id: doc.id,
+            ...doc.data(),
+          };
+        });
+        setMessageYouGetting(messagesYou);
+      }
+    );
 
-    return () => {
-      allMessagesSnapShot();
-    };
+    const combinedMessageg = [...messageMeGetting, ...messageYouGetting];
+
+    console.log(combinedMessageg);
   }, [chat.chatOpenData?.allUserID]);
+
   // Message Getting
   // Message Getting
+
+  // Phir Sirf wo msgs aayenge jis ki sendby Meri id ho aur send at us user ki jis ki chat open hai
 
   useEffect(() => {
     if (messageBody.current) {
@@ -264,7 +279,6 @@ const ChatSpaceApp = () => {
       await updateDoc(deleteMessageFormeRef, {
         messageDeleteForMe: arrayUnion(loginUser.uid),
       });
-      successShow(allSuccess.messageDeleteSuccess);
     } catch (error) {
       errorShow(allErrors.messageDeleteError || error.message);
     }
@@ -276,9 +290,9 @@ const ChatSpaceApp = () => {
       setDeleteMessageModal(false);
       await updateDoc(deleteMessageFormeRef, {
         messageDeleteForAll: true,
-        messageText: "This Message Has Been Deleted",
+        messageDeleteForAllAt: serverTimestamp(),
+        messageEdited: deleteField(),
       });
-      successShow(allSuccess.messageDeleteSuccess);
     } catch (error) {
       errorShow(allErrors.messageDeleteError || error.message);
     }
@@ -298,7 +312,6 @@ const ChatSpaceApp = () => {
       <CircularProgress
         size={"5rem"}
         sx={{
-          position: "absolute",
           color: "white",
         }}
       />
@@ -510,7 +523,6 @@ const ChatSpaceApp = () => {
             backgroundColor: "#075E54",
             padding: "10px 0",
             overflowY: "auto",
-            position: "relative",
           }}
         >
           {contacts}
@@ -722,7 +734,8 @@ const ChatSpaceApp = () => {
                       padding: "10px 10px",
                     }}
                   >
-                    {getEachUserMessages?.length === 0 ? (
+                    {[...messageMeGetting, ...messageYouGetting]?.length ===
+                    0 ? (
                       <Typography
                         sx={{
                           width: "100%",
@@ -738,14 +751,11 @@ const ChatSpaceApp = () => {
                         No Messeges
                       </Typography>
                     ) : (
-                      getEachUserMessages?.map((data, index) => {
-                        const {
-                          messageSentBy,
-                          messageText,
-                          messageDeleteForMe,
-                          messageDeleteForAll,
-                          messageEdited,
-                        } = data;
+                      messageYouGetting?.map((data, index) => {
+                        console.log(data);
+
+                        const { messageSentBy, messageText, messageEdited } =
+                          data;
                         const messageSendAtConvert =
                           data?.messageSentAt?.seconds * 1000 +
                           data?.messageSentAt?.nanoseconds / 1000000;
@@ -760,12 +770,11 @@ const ChatSpaceApp = () => {
                           month: "2-digit",
                           day: "2-digit",
                         });
-
                         return (
                           <React.Fragment key={index}>
-                            {messageDeleteForMe?.includes(
+                            {data?.messageDeleteForMe?.includes(
                               loginUser.uid
-                            ) ? null : (
+                            ) === undefined ? (
                               <Box
                                 component={"div"}
                                 id="messege"
@@ -785,7 +794,9 @@ const ChatSpaceApp = () => {
                                   display: "flex",
                                   flexDirection: "column",
                                   gap: "5px",
-                                  opacity: messageDeleteForAll ? "0.5" : "1",
+                                  opacity: data?.messageDeleteForAll
+                                    ? "0.5"
+                                    : "1",
                                   alignItems: "flex-start",
                                   alignSelf:
                                     messageSentBy === loginUser.uid
@@ -795,15 +806,17 @@ const ChatSpaceApp = () => {
                               >
                                 <Typography
                                   sx={{
-                                    fontSize: messageDeleteForAll
+                                    fontSize: data?.messageDeleteForAll
                                       ? "14px"
                                       : "15px",
                                   }}
                                 >
-                                  {messageText}
+                                  {data?.messageDeleteForAll
+                                    ? "This Message Has Been Deleted"
+                                    : messageText}
                                 </Typography>
 
-                                {messageDeleteForAll || (
+                                {data?.messageDeleteForAll || (
                                   <Box
                                     sx={{
                                       width: "100%",
@@ -860,7 +873,7 @@ const ChatSpaceApp = () => {
                                   </Box>
                                 )}
                               </Box>
-                            )}
+                            ) : null}
                           </React.Fragment>
                         );
                       })
@@ -960,9 +973,6 @@ const ChatSpaceApp = () => {
                   />
                   <IconButton
                     type="submit"
-                    // disabled={
-                    //   !messageInput || /\s/.test(messageInput) ? true : false
-                    // }
                     disabled={
                       !messageInput ||
                       /^\s*$/.test(messageInput) ||
