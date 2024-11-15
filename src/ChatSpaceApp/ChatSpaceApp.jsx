@@ -15,6 +15,8 @@ import {
   Tooltip,
   Fade,
   Backdrop,
+  FormControl,
+  FormLabel,
 } from "@mui/material";
 
 import {
@@ -36,6 +38,7 @@ import {
   arrayUnion,
   deleteField,
   where,
+  limit,
 } from "../Auth/firebase";
 
 import { useNavigate } from "react-router-dom";
@@ -53,6 +56,7 @@ import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import PropTypes from "prop-types";
 import { useAuth } from "../Utilities/AuthProvider";
 import { ToastContainer } from "react-toastify";
+import EditIcon from "@mui/icons-material/Edit";
 
 const ChatSpaceApp = () => {
   const { loginUser } = useAuth();
@@ -69,8 +73,14 @@ const ChatSpaceApp = () => {
   const [chatsLeftBarOpen, setChatsLeftBarOpen] = useState(false);
   const [openUserModal, setOpenUserModal] = useState(false);
   const [deleteMessageModal, setDeleteMessageModal] = useState(false);
+  const [editMessageModal, setEditMessageModal] = useState(false);
   const [messageInput, setMessageInput] = useState("");
-  const [getEachUserMessages, setGetEachUserMessages] = useState();
+  const [messageEditInput, setMessageEditInput] = useState("");
+  const [messagesMe, setMessagesMe] = useState();
+  const [messagesYou, setMessagesYou] = useState();
+  const [allMessages, setAllMessages] = useState();
+  const [editMessageLoading, setEditMessageLoading] = useState(false);
+  const [deleteMessageLoading, setDeleteMessageLoading] = useState(false);
   // States
   // States
 
@@ -125,6 +135,10 @@ const ChatSpaceApp = () => {
   const userModalHandler = () => setOpenUserModal(!openUserModal);
   const deleteMessageModalHandler = () =>
     setDeleteMessageModal(!deleteMessageModal);
+  const editMessageModalHandler = () => {
+    setEditMessageModal(!editMessageModal);
+    setMessageEditInput("");
+  };
   // Side Bar and Modal
   // Side Bar and Modal
 
@@ -196,18 +210,24 @@ const ChatSpaceApp = () => {
         return;
       }
       const massegesCollection = collection(db, "Messages");
-      await addDoc(massegesCollection, {
+      const newMessage = {
         messageEdited: false,
         messageText: messageInput,
         messageSendAt: serverTimestamp(),
         messageSendBy: loginUser.uid,
         messageSendTo: chat.chatOpenData?.allUserID,
-      });
+      };
+      // setAllMessages((prev) =>
+      //   [...prev, newMessage]?.sort((a, b) => {
+      //     return a.messageSendAt - b.messageSendAt;
+      //   })
+      // );
+      await addDoc(massegesCollection, newMessage);
       setMessageInput("");
       if (messageBody.current) {
         messageBody.current.scrollTop = messageBody.current.scrollHeight;
       }
-      successShow(allSuccess.messegeSentSuccess);
+      successShow(allSuccess.messegeSendSuccess);
     } catch (error) {
       errorShow(error.messege);
     }
@@ -217,9 +237,7 @@ const ChatSpaceApp = () => {
 
   // Message Getting
   // Message Getting
-  const [messagesMe, setMessagesMe] = useState();
-  const [messagesYou, setMessagesYou] = useState();
-  const [allMessages, setAllMessages] = useState();
+
   useEffect(() => {
     if (!chat?.chatOpenData?.allUserID) {
       return;
@@ -246,7 +264,7 @@ const ChatSpaceApp = () => {
     const unsubscribeYou = onSnapshot(
       query(
         collection(db, "Messages"),
-        orderBy("messageSendAt", "asc"),
+        orderBy("messageSendAt", "desc"),
         where("messageSendBy", "==", chat.chatOpenData?.allUserID),
         where("messageSendTo", "==", loginUser?.uid)
       ),
@@ -261,54 +279,66 @@ const ChatSpaceApp = () => {
       }
     );
 
-    if (messagesMe && messagesYou) {
-      const combinedAllMessages = [...messagesMe, ...messagesYou];
-      setAllMessages(combinedAllMessages);
-      console.log(allMessages, combinedAllMessages);
-    }
-
     return () => {
       unsubscribeMe();
       unsubscribeYou();
     };
   }, [chat.chatOpenData?.allUserID, loginUser?.uid]);
 
-  // Message Getting
-  // Message Getting
+  useEffect(() => {
+    if (messagesMe && messagesYou) {
+      setAllMessages(
+        [...messagesMe, ...messagesYou].sort(
+          (a, b) => a?.messageSendAt?.seconds - b?.messageSendAt?.seconds
+        )
+      );
+    }
+  }, [messagesMe, messagesYou]);
 
-  // Phir Sirf wo msgs aayenge jis ki sendby Meri id ho aur send at us user ki jis ki chat open hai
+  // Message Getting
+  // Message Getting
 
   useEffect(() => {
     if (messageBody.current) {
       messageBody.current.scrollTop = messageBody.current.scrollHeight;
       return;
     }
-  }, [getEachUserMessages]);
+  }, [allMessages]);
 
   const [messageID, setMessageID] = useState();
 
-  const deleteMessageForMeHandler = async () => {
+  const messageDeleteForMeHandler = async () => {
     try {
-      const deleteMessageFormeRef = doc(db, "Messages", messageID);
-      setDeleteMessageModal(false);
-      await updateDoc(deleteMessageFormeRef, {
+      const deleteMessageForMeRef = doc(db, "Messages", messageID);
+      setDeleteMessageLoading(true);
+      await updateDoc(deleteMessageForMeRef, {
         messageDeleteForMe: arrayUnion(loginUser.uid),
       });
+      setDeleteMessageModal(false);
+      setDeleteMessageLoading(false);
+      successShow(allSuccess.messageDeleteSuccessFully);
     } catch (error) {
+      setDeleteMessageModal(false);
+      setDeleteMessageLoading(false);
       errorShow(allErrors.messageDeleteError || error.message);
     }
   };
 
-  const deleteMessageForAllHandler = async () => {
+  const messageDeleteForAllHandler = async () => {
     try {
-      const deleteMessageFormeRef = doc(db, "Messages", messageID);
-      setDeleteMessageModal(false);
-      await updateDoc(deleteMessageFormeRef, {
+      const deleteMessageForAllRef = doc(db, "Messages", messageID);
+      setDeleteMessageLoading(true);
+      await updateDoc(deleteMessageForAllRef, {
         messageDeleteForAll: true,
         messageDeleteForAllAt: serverTimestamp(),
         messageEdited: deleteField(),
       });
+      setDeleteMessageModal(false);
+      setDeleteMessageLoading(false);
+      successShow(allSuccess.messageDeleteSuccessFully);
     } catch (error) {
+      setDeleteMessageModal(false);
+      setDeleteMessageLoading(false);
       errorShow(allErrors.messageDeleteError || error.message);
     }
   };
@@ -319,6 +349,35 @@ const ChatSpaceApp = () => {
       successShow(allSuccess.messageCopySuccess);
     } catch (error) {
       errorShow(allErrors.messageCopyError || error.message);
+    }
+  };
+
+  const messageEditHandler = async (event) => {
+    event.preventDefault();
+    try {
+      if (
+        /^\s*$/.test(messageEditInput) ||
+        !messageEditInput ||
+        messageEditInput.trim().length === 0
+      ) {
+        errorShow(allErrors.emptyMessegeError);
+        return;
+      }
+      const editMessageRef = doc(db, "Messages", messageID);
+      setEditMessageLoading(true);
+      await updateDoc(editMessageRef, {
+        messageText: messageEditInput,
+        messageEdited: true,
+      });
+      successShow(allSuccess.messageEditSuccessFully);
+      setEditMessageLoading(false);
+      setMessageEditInput("");
+      setEditMessageModal(false);
+    } catch (error) {
+      setEditMessageLoading(false);
+      setMessageEditInput("");
+      setEditMessageModal(false);
+      errorShow(error.message || allErrors);
     }
   };
 
@@ -749,7 +808,7 @@ const ChatSpaceApp = () => {
                       padding: "10px 10px",
                     }}
                   >
-                    {/* {messagesMe?.length === 0 ? (
+                    {allMessages?.length === 0 ? (
                       <Typography
                         sx={{
                           width: "100%",
@@ -764,70 +823,72 @@ const ChatSpaceApp = () => {
                       >
                         No Messeges
                       </Typography>
-                    ) : ( */}
-                    {messagesMe?.map((data, index) => {
-                      const { messageSentBy, messageText, messageEdited } =
-                        data;
-                      const messageSendAtConvert =
-                        data?.messageSentAt?.seconds * 1000 +
-                        data?.messageSentAt?.nanoseconds / 1000000;
-                      const messageSendAtConverted = new Date(
-                        messageSendAtConvert
-                      )?.toLocaleString("en-US", {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                        hour12: "true",
-                        weekday: "short",
-                        year: "2-digit",
-                        month: "2-digit",
-                        day: "2-digit",
-                      });
-                      return (
-                        <React.Fragment key={index}>
-                          {data?.messageDeleteForMe?.includes(loginUser.uid) ===
-                          undefined ? (
-                            <Box
-                              component={"div"}
-                              id="messege"
-                              sx={{
-                                color:
-                                  messageSentBy === loginUser.uid
-                                    ? "#075E54"
-                                    : "#fff",
-                                backgroundColor:
-                                  messageSentBy === loginUser.uid
-                                    ? "#fff"
-                                    : "#075E54",
-                                width: "300px",
-                                minWidth: "max-content",
-                                padding: "5px 10px",
-                                borderRadius: "5px",
-                                display: "flex",
-                                flexDirection: "column",
-                                gap: "5px",
-                                opacity: data?.messageDeleteForAll
-                                  ? "0.5"
-                                  : "1",
-                                alignItems: "flex-start",
-                                alignSelf:
-                                  messageSentBy === loginUser.uid
-                                    ? "flex-end"
-                                    : "flex-start",
-                              }}
-                            >
-                              <Typography
+                    ) : (
+                      allMessages?.map((data, index) => {
+                        const { messageSendBy, messageText, messageEdited } =
+                          data;
+
+                        const messageSendAtConvert =
+                          data?.messageSendAt?.seconds * 1000 +
+                          data?.messageSendAt?.nanoseconds / 1000000;
+                        const messageSendAtConverted = new Date(
+                          messageSendAtConvert
+                        )?.toLocaleString("en-US", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          hour12: "true",
+                          year: "2-digit",
+                          month: "2-digit",
+                          day: "2-digit",
+                        });
+                        return (
+                          <React.Fragment key={index}>
+                            {data?.messageDeleteForMe?.includes(
+                              loginUser.uid
+                            ) === undefined ? (
+                              <Box
+                                component={"div"}
+                                id="messege"
                                 sx={{
-                                  fontSize: data?.messageDeleteForAll
-                                    ? "14px"
-                                    : "15px",
+                                  color:
+                                    messageSendBy === loginUser.uid
+                                      ? "#075E54"
+                                      : "#fff",
+                                  backgroundColor:
+                                    messageSendBy === loginUser.uid
+                                      ? "#fff"
+                                      : "#075E54",
+                                  width: "300px",
+                                  minWidth: "max-content",
+                                  padding: "5px 10px",
+                                  borderRadius: "5px",
+                                  display: "flex",
+                                  flexDirection: "column",
+                                  gap: "5px",
+                                  opacity: data?.messageDeleteForAll
+                                    ? "0.5"
+                                    : "1",
+                                  alignItems: "flex-start",
+                                  alignSelf:
+                                    messageSendBy === loginUser.uid
+                                      ? "flex-end"
+                                      : "flex-start",
                                 }}
                               >
-                                {data?.messageDeleteForAll
-                                  ? "This Message Has Been Deleted"
-                                  : messageText}
-                              </Typography>
+                                <Typography
+                                  sx={{
+                                    fontSize: data?.messageDeleteForAll
+                                      ? "14px"
+                                      : "15px",
+                                  }}
+                                >
+                                  {data?.messageDeleteForAll
+                                    ? "This Message Has Been Deleted"
+                                    : messageText}
+                                </Typography>
 
-                              {data?.messageDeleteForAll || (
+                        
+
                                 <Box
                                   sx={{
                                     width: "100%",
@@ -839,57 +900,89 @@ const ChatSpaceApp = () => {
                                   }}
                                   component={"div"}
                                 >
-                                  <ContentCopyIcon
-                                    sx={{
-                                      color: "#075E54",
-                                      fontSize: "0.9rem",
-                                      cursor: "pointer",
-                                    }}
-                                    onClick={() => {
-                                      messageCopyHandler(messageText);
-                                    }}
-                                  />
-                                  {messageSentBy === loginUser.uid && (
+                                  {data?.messageDeleteForAll ? null : (
                                     <>
-                                      <Tooltip title={"Delete Message"}>
-                                        <DeleteIcon
+                                      {messageEdited && (
+                                        <Typography
                                           sx={{
-                                            color: "#075E54",
-                                            fontSize: "1.1rem",
-                                            cursor: "pointer",
+                                            fontSize: "12px",
                                           }}
-                                          onClick={() => {
-                                            deleteMessageModalHandler();
-                                            setMessageID(data.id);
+                                        >
+                                          Edited
+                                        </Typography>
+                                      )}
+                                      {data?.messageSendBy ===
+                                        loginUser?.uid && (
+                                        <>
+                                          <Tooltip title={"Delete Message"}>
+                                            <DeleteIcon
+                                              sx={{
+                                                color: "#075E54",
+                                                fontSize: "1.1rem",
+                                                cursor: "pointer",
+                                              }}
+                                              onClick={() => {
+                                                deleteMessageModalHandler();
+                                                setMessageID(data.id);
+                                              }}
+                                            />
+                                          </Tooltip>
+                                          <Tooltip title={"Edit Message"}>
+                                            <EditIcon
+                                              sx={{
+                                                color: "#075E54",
+                                                fontSize: "1.1rem",
+                                                cursor: "pointer",
+                                              }}
+                                              onClick={() => {
+                                                editMessageModalHandler();
+                                                setMessageID(data.id);
+                                              }}
+                                            />
+                                          </Tooltip>
+                                        </>
+                                      )}
+                                      <>
+                                        <Tooltip title={"Copy Message"}>
+                                          <ContentCopyIcon
+                                            sx={{
+                                              color:
+                                                messageSendBy === loginUser?.uid
+                                                  ? "#075E54"
+                                                  : "#fff",
+                                              fontSize: "0.9rem",
+                                              cursor: "pointer",
+                                            }}
+                                            onClick={() => {
+                                              messageCopyHandler(messageText);
+                                            }}
+                                          />
+                                        </Tooltip>
+                                        <span
+                                          id="messegeTime"
+                                          style={{
+                                            color:
+                                              messageSendBy === loginUser.uid
+                                                ? "#075E54"
+                                                : "#fff",
+                                            fontSize: "0.8rem",
                                           }}
-                                        />
-                                      </Tooltip>
+                                        >
+                                          {messageSendAtConverted ===
+                                          "Invalid Date"
+                                            ? "Loading....."
+                                            : messageSendAtConverted}
+                                        </span>
+                                      </>
                                     </>
                                   )}
-
-                                  <span
-                                    id="messegeTime"
-                                    style={{
-                                      color:
-                                        messageSentBy === loginUser.uid
-                                          ? "#075E54"
-                                          : "#fff",
-                                      fontSize: "0.8rem",
-                                    }}
-                                  >
-                                    {messageSendAtConverted === "Invalid Date"
-                                      ? "Loading....."
-                                      : messageSendAtConverted}
-                                  </span>
                                 </Box>
-                              )}
-                            </Box>
-                          ) : null}
-                        </React.Fragment>
-                      );
-                    })}
-
-                    {/* )} */}
+                              </Box>
+                            ) : null}
+                          </React.Fragment>
+                        );
+                      })
+                    )}
 
                     <Modal
                       open={deleteMessageModal}
@@ -932,19 +1025,99 @@ const ChatSpaceApp = () => {
                           <Button
                             sx={buttonStyled}
                             onClick={() => {
-                              deleteMessageForMeHandler();
+                              messageDeleteForMeHandler();
                             }}
+                            disabled={deleteMessageLoading && true}
                           >
                             Delete For Me
                           </Button>
                           <Button
                             sx={buttonStyled}
                             onClick={() => {
-                              deleteMessageForAllHandler();
+                              messageDeleteForAllHandler();
                             }}
+                            disabled={deleteMessageLoading && true}
                           >
                             Delete For Everyone
                           </Button>
+                        </Box>
+                      </Fade>
+                    </Modal>
+
+                    <Modal
+                      open={editMessageModal}
+                      onClose={editMessageModalHandler}
+                      closeAfterTransition
+                      slots={{ backdrop: Backdrop }}
+                      slotProps={{
+                        backdrop: {
+                          timeout: 500,
+                        },
+                      }}
+                    >
+                      <Fade in={editMessageModal}>
+                        <Box
+                          component={"form"}
+                          id="messegeEditForm"
+                          onSubmit={messageEditHandler}
+                          sx={{
+                            position: "absolute",
+                            top: "50%",
+                            left: "50%",
+                            transform: "translate(-50%, -50%)",
+                            width: {
+                              xs: "100%",
+                              sm: "600px",
+                            },
+                            backgroundColor: "#075E54",
+                            color: "white",
+                            border: "2px solid #fff",
+                            borderRadius: "20px",
+                            boxShadow: 24,
+                            p: 4,
+                            display: "flex",
+                            flexDirection: "row",
+                            justifyContent: {
+                              xs: "space-between",
+                              sm: "center",
+                            },
+                            alignItems: "center",
+                            gap: { xs: "0px", sm: "20px" },
+                          }}
+                        >
+                          <Input
+                            type="text"
+                            placeholder="Type Edit Messege"
+                            sx={{
+                              width: "80%",
+                              backgroundColor: "#fff",
+                              padding: "10px 15px",
+                              color: "#075E54",
+                              borderRadius: "20px",
+                            }}
+                            disableUnderline={true}
+                            value={messageEditInput}
+                            onChange={(event) =>
+                              setMessageEditInput(event.target.value)
+                            }
+                            disabled={editMessageLoading && true}
+                          />
+
+                          <IconButton
+                            type="submit"
+                            disabled={editMessageLoading && true}
+                          >
+                            <EditIcon
+                              sx={{
+                                fontSize: "3rem",
+                                color: "#128C7E",
+                                padding: "5px 10px",
+                                cursor: "pointer",
+                                borderRadius: "50%",
+                                backgroundColor: "#fff",
+                              }}
+                            />
+                          </IconButton>
                         </Box>
                       </Fade>
                     </Modal>
@@ -985,11 +1158,11 @@ const ChatSpaceApp = () => {
                   />
                   <IconButton
                     type="submit"
-                    disabled={
-                      !messageInput ||
-                      /^\s*$/.test(messageInput) ||
-                      messageInput.trim().length === 0
-                    }
+                    // disabled={
+                    //   !messageInput ||
+                    //   /^\s*$/.test(messageInput) ||
+                    //   messageInput.trim().length === 0
+                    // }
                     sx={{ width: { xs: "20%", md: "10%" } }}
                   >
                     <SendIcon

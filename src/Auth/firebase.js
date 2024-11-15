@@ -23,6 +23,7 @@ import {
   serverTimestamp,
   arrayUnion,
   deleteField,
+  limit,
 } from "firebase/firestore";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { toast } from "react-toastify";
@@ -81,9 +82,11 @@ const allErrors = {
 const allSuccess = {
   signUpSuccess: "Account Created SuccessFully! You Can Now Log In.",
   logInSuccess: "Login SuccessFully!",
-  signOutSuccess: "Sign Out SuccessFully",
-  messegeSentSuccess: "Messege Sent",
+  signOutSuccess: "Sign Out SuccessFully!",
+  messegeSendSuccess: "Messege Send",
   messageCopySuccess: "Message Copied to Clipboard",
+  messageDeleteSuccessFully: "Messege Delete SuccessFully!",
+  messageEditSuccessFully: "Messege Edit SuccessFully!",
 };
 
 export {
@@ -116,4 +119,5 @@ export {
   updateDoc,
   orderBy,
   serverTimestamp,
+  limit,
 };
