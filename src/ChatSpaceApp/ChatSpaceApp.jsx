@@ -188,7 +188,7 @@ const ChatSpaceApp = () => {
     return () => {
       allUsersSnapShot();
     };
-  }, []);
+  }, [loginUser.uid]);
   // UserGetting
   // UserGetting
 
