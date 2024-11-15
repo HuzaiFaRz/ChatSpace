@@ -58,8 +58,8 @@ const LogIn = () => {
     try {
       event.preventDefault();
       if (
-        /^\s*$/.test(logInInputs.logInEmail) ||
-        /^\s*$/.test(logInInputs.logInPassword)
+        /\s/.test(logInInputs.logInEmail) ||
+        /\s/.test(logInInputs.logInPassword)
       ) {
         errorShow(allErrors.blankSpace);
         return;
@@ -167,7 +167,7 @@ const LogIn = () => {
                     alignItems: "flex-start",
                     padding: "10px 10px",
                   }}
-                  disabled={logInLoading ? true : false}
+                  disabled={logInLoading && true}
                 >
                   <FormLabel
                     htmlFor={elem.inputCommonName}
@@ -215,6 +215,7 @@ const LogIn = () => {
                         top: "50%",
                         cursor: "pointer",
                       }}
+                      disabled={logInLoading && true}
                     >
                       {passwordShow ? (
                         <VisibilityIcon
@@ -233,7 +234,7 @@ const LogIn = () => {
           })}
 
           <Button
-            disabled={logInLoading ? true : false}
+            disabled={logInLoading && true}
             sx={{
               display: "flex",
               flexDirection: "row",

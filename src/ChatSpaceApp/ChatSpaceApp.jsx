@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, Fragment, useEffect, useRef } from "react";
 import {
   Button,
@@ -15,8 +14,6 @@ import {
   Tooltip,
   Fade,
   Backdrop,
-  FormControl,
-  FormLabel,
 } from "@mui/material";
 
 import {
@@ -38,7 +35,6 @@ import {
   arrayUnion,
   deleteField,
   where,
-  limit,
 } from "../Auth/firebase";
 
 import { useNavigate } from "react-router-dom";
@@ -124,8 +120,8 @@ const ChatSpaceApp = () => {
   // Log Out
   // Log Out
 
-  // Side Bar and Modal
-  // Side Bar and Modal
+  // Side Bars and Modals
+  // Side Bars and Modals
   const toggleRightDrawer = (anchor, open) => () => {
     setProfileRightBarOpen({ ...profileRightBarOpen, [anchor]: open });
   };
@@ -139,8 +135,8 @@ const ChatSpaceApp = () => {
     setEditMessageModal(!editMessageModal);
     setMessageEditInput("");
   };
-  // Side Bar and Modal
-  // Side Bar and Modal
+  // Side Bars and Modals
+  // Side Bars and Modals
 
   // Default Style
   // Default Style
@@ -306,7 +302,8 @@ const ChatSpaceApp = () => {
   }, [allMessages]);
 
   const [messageID, setMessageID] = useState();
-
+  // Message DeleteForMe Handler
+  // Message DeleteForMe Handler
   const messageDeleteForMeHandler = async () => {
     try {
       const deleteMessageForMeRef = doc(db, "Messages", messageID);
@@ -323,7 +320,11 @@ const ChatSpaceApp = () => {
       errorShow(allErrors.messageDeleteError || error.message);
     }
   };
+  // Message DeleteForMe Handler
+  // Message DeleteForMe Handler
 
+  // Message DeleteForAll Handler
+  // Message DeleteForAll Handler
   const messageDeleteForAllHandler = async () => {
     try {
       const deleteMessageForAllRef = doc(db, "Messages", messageID);
@@ -342,7 +343,11 @@ const ChatSpaceApp = () => {
       errorShow(allErrors.messageDeleteError || error.message);
     }
   };
+  // Message DeleteForAll Handler
+  // Message DeleteForAll Handler
 
+  // Message Copy Handler
+  // Message Copy Handler
   const messageCopyHandler = async (copyText) => {
     try {
       await navigator.clipboard.writeText(copyText);
@@ -351,7 +356,11 @@ const ChatSpaceApp = () => {
       errorShow(allErrors.messageCopyError || error.message);
     }
   };
+  // Message Copy Handler
+  // Message Copy Handler
 
+  // Message Edit Handler
+  // Message Edit Handler
   const messageEditHandler = async (event) => {
     event.preventDefault();
     try {
@@ -380,6 +389,8 @@ const ChatSpaceApp = () => {
       errorShow(error.message || allErrors);
     }
   };
+  // Message Edit Handler
+  // Message Edit Handler
 
   const contacts =
     outSideUsers.length === 0 ? (
@@ -828,6 +839,10 @@ const ChatSpaceApp = () => {
                         const { messageSendBy, messageText, messageEdited } =
                           data;
 
+                        console.log(
+                          data?.messageDeleteForMe?.includes(loginUser.uid)
+                        );
+
                         const messageSendAtConvert =
                           data?.messageSendAt?.seconds * 1000 +
                           data?.messageSendAt?.nanoseconds / 1000000;
@@ -845,7 +860,7 @@ const ChatSpaceApp = () => {
                           <React.Fragment key={index}>
                             {data?.messageDeleteForMe?.includes(
                               loginUser.uid
-                            ) === undefined ? (
+                            ) || (
                               <Box
                                 component={"div"}
                                 id="messege"
@@ -886,8 +901,6 @@ const ChatSpaceApp = () => {
                                     ? "This Message Has Been Deleted"
                                     : messageText}
                                 </Typography>
-
-                        
 
                                 <Box
                                   sx={{
@@ -978,7 +991,7 @@ const ChatSpaceApp = () => {
                                   )}
                                 </Box>
                               </Box>
-                            ) : null}
+                            )}
                           </React.Fragment>
                         );
                       })

@@ -45,7 +45,6 @@ const SignUp = () => {
     signupTime: serverTimestamp(),
   });
 
-
   const signUpInputsArray = [
     {
       inputCommonName: "signUpName",
@@ -84,16 +83,9 @@ const SignUp = () => {
   };
 
   const signUpSubmitHandler = async (event) => {
+    event.preventDefault();
     try {
-      event.preventDefault();
-      if (
-        /^\s*$/.test(signUpInputs.signUpName) ||
-        /^\s*$/.test(signUpInputs.signUpEmail) ||
-        /^\s*$/.test(signUpInputs.signUpPassword)
-      ) {
-        errorShow(allErrors.blankSpace);
-        return;
-      } else if (!signUpInputs.signUpName) {
+      if (!signUpInputs.signUpName) {
         errorShow(allErrors.nameError);
         return;
       } else if (!signUpInputs.signUpEmail) {
@@ -115,6 +107,13 @@ const SignUp = () => {
         fileExtension !== "image/webp"
       ) {
         errorShow(allErrors.profileExtention);
+        return;
+      } else if (
+        /^\s*$/.test(signUpInputs.signUpName) ||
+        /\s/.test(signUpInputs.signUpEmail) ||
+        /\s/.test(signUpInputs.signUpPassword)
+      ) {
+        errorShow(allErrors.blankSpace);
         return;
       }
       setSignUpLoading(true);
@@ -220,7 +219,7 @@ const SignUp = () => {
                     alignItems: "flex-start",
                     padding: "10px 10px",
                   }}
-                  disabled={signUpLoading ? true : false}
+                  disabled={signUpLoading && true}
                 >
                   <FormLabel
                     htmlFor={elem.inputCommonName}
@@ -275,6 +274,7 @@ const SignUp = () => {
 
                   {index === 2 && (
                     <IconButton
+                      disabled={signUpLoading && true}
                       onClick={() => {
                         setPasswordShow((prev) => !prev);
                       }}
@@ -304,7 +304,7 @@ const SignUp = () => {
           })}
 
           <Button
-            disabled={signUpLoading ? true : false}
+            disabled={signUpLoading && true}
             sx={{
               display: "flex",
               flexDirection: "row",
@@ -354,7 +354,7 @@ const SignUp = () => {
             }}
           >
             Already have an Account ?
-            <Button disabled={signUpLoading ? true : false}>
+            <Button disabled={signUpLoading && true}>
               <Link
                 to={"/login"}
                 style={{
