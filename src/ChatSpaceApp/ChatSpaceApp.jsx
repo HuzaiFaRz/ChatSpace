@@ -55,6 +55,10 @@ import { ToastContainer } from "react-toastify";
 import EditIcon from "@mui/icons-material/Edit";
 
 const ChatSpaceApp = () => {
+  useEffect(() => {
+    document.title = "ChatSpace";
+  }, []);
+
   const { loginUser } = useAuth();
   // States
   // States
@@ -77,6 +81,7 @@ const ChatSpaceApp = () => {
   const [allMessages, setAllMessages] = useState();
   const [editMessageLoading, setEditMessageLoading] = useState(false);
   const [deleteMessageLoading, setDeleteMessageLoading] = useState(false);
+  const [chatSearchInput, setChatSearchInput] = useState("");
   // States
   // States
 
@@ -361,7 +366,7 @@ const ChatSpaceApp = () => {
 
   // Message Edit Handler
   // Message Edit Handler
-  const messageEditHandler = async (event) => {
+  const messageEditHandler = async () => {
     event.preventDefault();
     try {
       if (
@@ -392,8 +397,24 @@ const ChatSpaceApp = () => {
   // Message Edit Handler
   // Message Edit Handler
 
+  // Chat Search Handler
+  // Chat Search Handler
+  const chatSearchHandler = (event) => {
+    setChatSearchInput(event.target.value);
+    outSideUsers.forEach((data) => {
+      if (
+        event.target.value.toLocaleLowerCase() ===
+        data.allUserDATA.signUpName.toLocaleLowerCase()
+      ) {
+        console.log(data.allUserDATA.signUpName);
+      }
+    });
+  };
+  // Chat Search Handler
+  // Chat Search Handler
+
   const contacts =
-    outSideUsers.length === 0 ? (
+    outSideUsers?.length === 0 ? (
       <CircularProgress
         size={"5rem"}
         sx={{
@@ -401,7 +422,7 @@ const ChatSpaceApp = () => {
         }}
       />
     ) : (
-      outSideUsers.map((data, index) => {
+      outSideUsers?.map((data, index) => {
         return (
           <List
             key={index}
@@ -465,7 +486,7 @@ const ChatSpaceApp = () => {
           height: { xs: "15vh", sm: "8vh" },
           backgroundColor: "#128C7E",
           boxShadow: "none",
-          borderBottom: "1px solid white",
+          borderBottom: "2.5px solid #fff",
         }}
       >
         <Box
@@ -598,19 +619,59 @@ const ChatSpaceApp = () => {
       >
         <Box
           sx={{
-            display: { xs: "none", sm: "flex" },
-            flexDirection: "column",
+            display: { xs: "none", sm: "block" },
             justifyContent: outSideUsers.length !== 0 ? "flex-start" : "center",
-            alignItems: "center",
-            gap: "15px",
             width: { xs: "0%", sm: "40%" },
             height: "100%",
             backgroundColor: "#075E54",
-            padding: "10px 0",
-            overflowY: "auto",
           }}
         >
-          {contacts}
+          <Box
+            sx={{
+              width: "100%",
+              backgroundColor: "#075E54",
+              borderBottom: "2.5px solid #fff",
+              p: 2,
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "space-evenly",
+              alignItems: "center",
+              height: "100px",
+            }}
+          >
+            <Input
+              type="text"
+              placeholder="Search By Name"
+              sx={{
+                width: "100%",
+                backgroundColor: "#fff",
+                padding: "10px 15px",
+                color: "#075E54",
+                borderRadius: "20px",
+              }}
+              disableUnderline={true}
+              value={chatSearchInput}
+              onChange={(event) => {
+                chatSearchHandler(event);
+              }}
+            />
+          </Box>
+
+          <Box
+            sx={{
+              width: "100%",
+              height: "100%",
+              overflowY: "auto",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "flex-start",
+              alignItems: "center",
+              gap: "15px",
+              padding: "10px 0",
+            }}
+          >
+            {contacts}
+          </Box>
         </Box>
 
         <Box
@@ -648,7 +709,7 @@ const ChatSpaceApp = () => {
                     justifyContent: "space-between",
                     aligmItems: "center",
                     padding: "10px 10px",
-                    borderBottom: "1px solid #fff",
+                    borderBottom: "2.5px solid #fff",
                     position: "absolute",
                     top: "0%",
                     height: "10%",
@@ -1147,7 +1208,7 @@ const ChatSpaceApp = () => {
                     width: "100%",
                     backgroundColor: "#075E54",
                     padding: "10px 10px",
-                    borderLeft: "2px solid white",
+                    borderLeft: "2.5px solid #fff",
                     position: "absolute",
                     bottom: "0",
                     height: "10%",

@@ -26,6 +26,7 @@ const App = () => {
             </ProtectedRoutes>
           }
         />
+        <Route errorElement={<Error />} />
         <Route element={<Login />} path={"/login"} />
         <Route element={<SignUp />} path={"/signup"} />
         <Route path="*" element={<Error />} />

@@ -24,6 +24,9 @@ import {
 import { useAuth } from "../Utilities/AuthProvider";
 
 const LogIn = () => {
+  useEffect(() => {
+    document.title = "ChatSpace | Log In";
+  }, []);
   const { setLoginUser } = useAuth();
   const navigate = useNavigate();
   const [logInLoading, setLogInLoading] = useState(false);

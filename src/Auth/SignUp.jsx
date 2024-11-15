@@ -1,4 +1,4 @@
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   FormControl,
@@ -33,6 +33,10 @@ import {
 import { useNavigate } from "react-router-dom";
 
 const SignUp = () => {
+  useEffect(() => {
+    document.title = "ChatSpace | Sign Up";
+  }, []);
+
   const navigate = useNavigate();
   const [fileExtension, setFileExtension] = useState();
   const [signUpLoading, setSignUpLoading] = useState(false);
