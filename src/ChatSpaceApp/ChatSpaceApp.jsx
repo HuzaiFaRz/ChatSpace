@@ -723,6 +723,8 @@ const ChatSpaceApp = () => {
               alignItems: "center",
               gap: "15px",
               padding: "10px 0",
+              resize: "both",
+              overflow: "auto",
             }}
             ref={chatList}
           >
