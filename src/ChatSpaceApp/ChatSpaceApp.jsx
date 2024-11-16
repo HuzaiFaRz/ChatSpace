@@ -218,11 +218,6 @@ const ChatSpaceApp = () => {
         messageSendBy: loginUser.uid,
         messageSendTo: chat.chatOpenData?.allUserID,
       };
-      // setAllMessages((prev) =>
-      //   [...prev, newMessage]?.sort((a, b) => {
-      //     return a.messageSendAt - b.messageSendAt;
-      //   })
-      // );
       await addDoc(massegesCollection, newMessage);
       setMessageInput("");
       if (messageBody.current) {
@@ -406,7 +401,7 @@ const ChatSpaceApp = () => {
         event.target.value.toLocaleLowerCase() ===
         data.allUserDATA.signUpName.toLocaleLowerCase()
       ) {
-        console.log(data.allUserDATA.signUpName);
+        return;
       }
     });
   };
@@ -561,7 +556,52 @@ const ChatSpaceApp = () => {
             display: { xs: "block", sm: "none" },
           }}
         >
-          {contacts}
+          <Box
+            sx={{
+              width: "100%",
+              backgroundColor: "#075E54",
+              borderBottom: "2.5px solid #fff",
+              p: 2,
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "space-evenly",
+              alignItems: "center",
+              height: "100px",
+            }}
+          >
+            <Input
+              type="text"
+              placeholder="Search By Name"
+              sx={{
+                width: "100%",
+                backgroundColor: "#fff",
+                padding: "10px 15px",
+                color: "#075E54",
+                borderRadius: "20px",
+              }}
+              disableUnderline={true}
+              value={chatSearchInput}
+              onChange={(event) => {
+                chatSearchHandler(event);
+              }}
+            />
+          </Box>
+
+          <Box
+            sx={{
+              width: "100%",
+              height: "100%",
+              overflowY: "auto",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "flex-start",
+              alignItems: "center",
+              gap: "15px",
+              padding: "10px 0",
+            }}
+          >
+            {contacts}
+          </Box>
         </Drawer>
         <Drawer
           anchor={"right"}
@@ -578,6 +618,7 @@ const ChatSpaceApp = () => {
               justifyContent: "center",
               alignItems: "center",
               gap: "20px",
+              textAlign: "center",
             }}
           >
             <Box
@@ -594,14 +635,18 @@ const ChatSpaceApp = () => {
             />
             <Typography
               sx={{
+                width: "100%",
                 fontWeight: "400",
                 color: "#fff",
-                fontSize: { xs: "2rem", sm: "2rem" },
+                fontSize: { xs: "1.5rem", sm: "2rem" },
               }}
             >
               Hi ! {currentUser?.allUserDATA?.signUpName}
             </Typography>
-            <Typography id="modal-modal-description" sx={{ color: "white" }}>
+            <Typography
+              id="modal-modal-description"
+              sx={{ color: "white", width: "100%" }}
+            >
               {currentUser?.allUserDATA?.signUpEmail}
             </Typography>
           </Box>
@@ -899,11 +944,6 @@ const ChatSpaceApp = () => {
                       allMessages?.map((data, index) => {
                         const { messageSendBy, messageText, messageEdited } =
                           data;
-
-                        console.log(
-                          data?.messageDeleteForMe?.includes(loginUser.uid)
-                        );
-
                         const messageSendAtConvert =
                           data?.messageSendAt?.seconds * 1000 +
                           data?.messageSendAt?.nanoseconds / 1000000;
