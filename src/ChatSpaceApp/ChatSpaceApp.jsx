@@ -676,7 +676,7 @@ const ChatSpaceApp = () => {
           sx={{
             display: { xs: "none", sm: "block" },
             justifyContent: outSideUsers.length !== 0 ? "flex-start" : "center",
-            width: { xs: "0%", sm: "40%" },
+            width: { xs: "0%", sm: "30%" },
             height: "100%",
             backgroundColor: "#075E54",
           }}
@@ -723,8 +723,6 @@ const ChatSpaceApp = () => {
               alignItems: "center",
               gap: "15px",
               padding: "10px 0",
-              resize: "both",
-              overflow: "auto",
             }}
             ref={chatList}
           >
@@ -738,7 +736,7 @@ const ChatSpaceApp = () => {
             flexDirection: "column",
             justifyContent: "center",
             alignItems: "center",
-            width: { xs: "100%", sm: "60%" },
+            width: { xs: "100%", sm: "70%" },
             height: "100%",
             backgroundColor: "#128C7E",
             position: "relative",
