@@ -219,11 +219,6 @@ const ChatSpaceApp = () => {
         messageSendBy: loginUser.uid,
         messageSendTo: chat.chatOpenData?.allUserID,
       };
-      // setAllMessages((prev) =>
-      //   [...prev, newMessage]?.sort((a, b) => {
-      //     return a.messageSendAt - b.messageSendAt;
-      //   })
-      // );
       await addDoc(massegesCollection, newMessage);
       setMessageInput("");
       if (messageBody.current) {
@@ -633,6 +628,7 @@ const ChatSpaceApp = () => {
               justifyContent: "center",
               alignItems: "center",
               gap: "20px",
+              textAlign: "center",
             }}
           >
             <Box
@@ -649,14 +645,18 @@ const ChatSpaceApp = () => {
             />
             <Typography
               sx={{
+                width: "100%",
                 fontWeight: "400",
                 color: "#fff",
-                fontSize: { xs: "2rem", sm: "2rem" },
+                fontSize: { xs: "1.5rem", sm: "2rem" },
               }}
             >
               Hi ! {currentUser?.allUserDATA?.signUpName}
             </Typography>
-            <Typography id="modal-modal-description" sx={{ color: "white" }}>
+            <Typography
+              id="modal-modal-description"
+              sx={{ color: "white", width: "100%" }}
+            >
               {currentUser?.allUserDATA?.signUpEmail}
             </Typography>
           </Box>
@@ -691,7 +691,7 @@ const ChatSpaceApp = () => {
               flexDirection: "row",
               justifyContent: "space-evenly",
               alignItems: "center",
-              height: "100px",
+              height: "10%",
             }}
           >
             <Input
