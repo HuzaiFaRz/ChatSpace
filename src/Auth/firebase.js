@@ -37,21 +37,13 @@ const {
   VITE_CHATSPACE_measurementId,
 } = import.meta.env;
 const firebaseConfig = {
-  // apiKey: VITE_CHATSPACE_apiKey,
-  // authDomain: VITE_CHATSPACE_authDomain,
-  // projectId: VITE_CHATSPACE_projectId,
-  // storageBucket: VITE_CHATSPACE_storageBucket,
-  // messagingSenderId: VITE_CHATSPACE_messagingSenderId,
-  // appId: VITE_CHATSPACE_appId,
-  // measurementId: VITE_CHATSPACE_measurementId,
-  apiKey: "AIzaSyBdDy4_WmcRK8NQEnqzrYlefppTEh9pKnM",
-  authDomain: "chatspace-dd695.firebaseapp.com",
-  projectId: "chatspace-dd695",
-  storageBucket: "chatspace-dd695.appspot.com",
-  messagingSenderId: "259681605914",
-  appId: "1:259681605914:web:c88bf99187bd08bfd034a3",
-  measurementId: "G-1Q7TQR7NB2"
-
+  apiKey: VITE_CHATSPACE_apiKey,
+  authDomain: VITE_CHATSPACE_authDomain,
+  projectId: VITE_CHATSPACE_projectId,
+  storageBucket: VITE_CHATSPACE_storageBucket,
+  messagingSenderId: VITE_CHATSPACE_messagingSenderId,
+  appId: VITE_CHATSPACE_appId,
+  measurementId: VITE_CHATSPACE_measurementId,
 };
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
