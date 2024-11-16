@@ -655,7 +655,7 @@ const ChatSpaceApp = () => {
       <Box
         sx={{
           width: "100%",
-          height: { xs: "85vh", sm: "92vh" },
+          height: "100%",
           display: "flex",
           flexDirection: "row",
           justifyContent: "center",
@@ -681,7 +681,7 @@ const ChatSpaceApp = () => {
               flexDirection: "row",
               justifyContent: "space-evenly",
               alignItems: "center",
-              height: "100px",
+              height: "10%",
             }}
           >
             <Input
