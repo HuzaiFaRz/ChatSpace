@@ -60,8 +60,8 @@ const ChatSpaceApp = () => {
   }, []);
 
   const { loginUser } = useAuth();
-  // States
-  // States
+  // States And Hooks
+  // States And Hooks
   const [outSideUsers, setOutSideUsers] = useState([]);
   const [currentUser, setCurrentUser] = useState({});
   const [logOutLoading, setLogOutLoading] = useState(false);
@@ -69,6 +69,7 @@ const ChatSpaceApp = () => {
     chatOpen: false,
     chatOpenData: undefined,
   });
+  const chatList = useRef(null);
   const [profileRightBarOpen, setProfileRightBarOpen] = useState(false);
   const [chatsLeftBarOpen, setChatsLeftBarOpen] = useState(false);
   const [openUserModal, setOpenUserModal] = useState(false);
@@ -82,8 +83,8 @@ const ChatSpaceApp = () => {
   const [editMessageLoading, setEditMessageLoading] = useState(false);
   const [deleteMessageLoading, setDeleteMessageLoading] = useState(false);
   const [chatSearchInput, setChatSearchInput] = useState("");
-  // States
-  // States
+  // States And Hooks
+  // States And Hooks
 
   // Massege Scroll Bar Set
   // Massege Scroll Bar Set
@@ -401,12 +402,20 @@ const ChatSpaceApp = () => {
   // Chat Search Handler
   const chatSearchHandler = (event) => {
     setChatSearchInput(event.target.value);
-    outSideUsers.forEach((data) => {
+    outSideUsers.filter((data, index) => {
       if (
-        event.target.value.toLocaleLowerCase() ===
-        data.allUserDATA.signUpName.toLocaleLowerCase()
+        data.allUserDATA.signUpName
+          .toLowerCase()
+          .replaceAll(" ", "")
+          .includes(event.target.value.toLowerCase().replaceAll(" ", ""))
       ) {
-        console.log(data.allUserDATA.signUpName);
+        if (chatList.current) {
+          const chatElements = chatList.current.children;
+          chatElements[index].style.display = "flex";
+        }
+      } else {
+        const chatElements = chatList.current.children;
+        chatElements[index].style.display = "none";
       }
     });
   };
@@ -561,7 +570,53 @@ const ChatSpaceApp = () => {
             display: { xs: "block", sm: "none" },
           }}
         >
-          {contacts}
+          <Box
+            sx={{
+              width: "100%",
+              backgroundColor: "#075E54",
+              borderBottom: "2.5px solid #fff",
+              p: 2,
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "space-evenly",
+              alignItems: "center",
+              height: "100px",
+            }}
+          >
+            <Input
+              type="text"
+              placeholder="Search By Name"
+              sx={{
+                width: "100%",
+                backgroundColor: "#fff",
+                padding: "10px 15px",
+                color: "#075E54",
+                borderRadius: "20px",
+              }}
+              disableUnderline={true}
+              value={chatSearchInput}
+              onChange={(event) => {
+                chatSearchHandler(event);
+              }}
+            />
+          </Box>
+
+          <Box
+            sx={{
+              width: "100%",
+              height: "100%",
+              overflowY: "auto",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "flex-start",
+              alignItems: "center",
+              gap: "15px",
+              padding: "10px 0",
+            }}
+            ref={chatList}
+          >
+            {contacts}
+          </Box>
         </Drawer>
         <Drawer
           anchor={"right"}
@@ -610,7 +665,7 @@ const ChatSpaceApp = () => {
       <Box
         sx={{
           width: "100%",
-          height: { xs: "85vh", sm: "92vh" },
+          height: "100vh",
           display: "flex",
           flexDirection: "row",
           justifyContent: "center",
@@ -669,6 +724,7 @@ const ChatSpaceApp = () => {
               gap: "15px",
               padding: "10px 0",
             }}
+            ref={chatList}
           >
             {contacts}
           </Box>
@@ -899,11 +955,6 @@ const ChatSpaceApp = () => {
                       allMessages?.map((data, index) => {
                         const { messageSendBy, messageText, messageEdited } =
                           data;
-
-                        console.log(
-                          data?.messageDeleteForMe?.includes(loginUser.uid)
-                        );
-
                         const messageSendAtConvert =
                           data?.messageSendAt?.seconds * 1000 +
                           data?.messageSendAt?.nanoseconds / 1000000;
