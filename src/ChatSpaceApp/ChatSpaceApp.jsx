@@ -77,12 +77,11 @@ const ChatSpaceApp = () => {
   const [editMessageModal, setEditMessageModal] = useState(false);
   const [messageInput, setMessageInput] = useState("");
   const [messageEditInput, setMessageEditInput] = useState("");
-  const [messagesMe, setMessagesMe] = useState();
-  const [messagesYou, setMessagesYou] = useState();
   const [allMessages, setAllMessages] = useState();
   const [editMessageLoading, setEditMessageLoading] = useState(false);
   const [deleteMessageLoading, setDeleteMessageLoading] = useState(false);
   const [chatSearchInput, setChatSearchInput] = useState("");
+  const [messageID, setMessageID] = useState();
   // States And Hooks
   // States And Hooks
 
@@ -163,37 +162,40 @@ const ChatSpaceApp = () => {
     color: "#075E54",
     fontSize: "1rem",
   };
-
   // Default Style
   // Default Style
 
   // UserGetting
   // UserGetting
   useEffect(() => {
-    const UsersDocRef = query(
-      collection(db, "Users"),
-      orderBy("signupTime", "asc")
-    );
-    const allUsersSnapShot = onSnapshot(UsersDocRef, (snapshot) => {
-      const allUserDataSnapShot = snapshot.docs.map((allUsersData) => {
-        return {
-          allUserID: allUsersData.id,
-          allUserDATA: allUsersData.data(),
-        };
-      });
-      const outSideUserFiltered = allUserDataSnapShot.filter(
-        (data) => data.allUserID !== loginUser.uid
+    try {
+      const UsersDocRef = query(
+        collection(db, "Users"),
+        orderBy("signupTime", "asc")
       );
-      allUserDataSnapShot
-        .filter((data) => data.allUserID === loginUser.uid)
-        .map((data) => {
-          setCurrentUser(data);
+      const allUsersSnapShot = onSnapshot(UsersDocRef, (snapshot) => {
+        const allUserDataSnapShot = snapshot.docs.map((allUsersData) => {
+          return {
+            allUserID: allUsersData.id,
+            allUserDATA: allUsersData.data(),
+          };
         });
-      setOutSideUsers(outSideUserFiltered);
-    });
-    return () => {
-      allUsersSnapShot();
-    };
+        const outSideUserFiltered = allUserDataSnapShot.filter(
+          (data) => data.allUserID !== loginUser.uid
+        );
+        allUserDataSnapShot
+          .filter((data) => data.allUserID === loginUser.uid)
+          .map((data) => {
+            setCurrentUser(data);
+          });
+        setOutSideUsers(outSideUserFiltered);
+      });
+      return () => {
+        allUsersSnapShot();
+      };
+    } catch (error) {
+      errorShow(error.message);
+    }
   }, [loginUser.uid]);
   // UserGetting
   // UserGetting
@@ -234,63 +236,47 @@ const ChatSpaceApp = () => {
 
   // Message Getting
   // Message Getting
-
   useEffect(() => {
-    if (!chat?.chatOpenData?.allUserID) {
-      return;
-    }
-    const unsubscribeMe = onSnapshot(
-      query(
-        collection(db, "Messages"),
-        orderBy("messageSendAt", "asc"),
-        where("messageSendBy", "==", loginUser?.uid),
-        where("messageSendTo", "==", chat.chatOpenData?.allUserID)
-      ),
-
-      (snapshot) => {
-        const messagesMeGetting = snapshot.docs.map((doc) => {
-          return {
-            id: doc.id,
-            ...doc.data(),
-          };
-        });
-        setMessagesMe(messagesMeGetting);
+    try {
+      if (!chat?.chatOpenData?.allUserID) {
+        return;
       }
-    );
+      const unsubscribe = onSnapshot(
+        query(
+          collection(db, "Messages"),
+          orderBy("messageSendAt", "asc"),
+          where("messageSendBy", "in", [
+            loginUser?.uid,
+            chat.chatOpenData?.allUserID,
+          ]),
+          where("messageSendTo", "in", [
+            chat.chatOpenData?.allUserID,
+            loginUser?.uid,
+          ])
+        ),
 
-    const unsubscribeYou = onSnapshot(
-      query(
-        collection(db, "Messages"),
-        orderBy("messageSendAt", "desc"),
-        where("messageSendBy", "==", chat.chatOpenData?.allUserID),
-        where("messageSendTo", "==", loginUser?.uid)
-      ),
-      (snapshot) => {
-        const messagesYouGetting = snapshot.docs.map((doc) => {
-          return {
-            id: doc.id,
-            ...doc.data(),
-          };
-        });
-        setMessagesYou(messagesYouGetting);
-      }
-    );
-
-    return () => {
-      unsubscribeMe();
-      unsubscribeYou();
-    };
-  }, [chat.chatOpenData?.allUserID, loginUser?.uid]);
-
-  useEffect(() => {
-    if (messagesMe && messagesYou) {
-      setAllMessages(
-        [...messagesMe, ...messagesYou].sort(
-          (a, b) => a?.messageSendAt?.seconds - b?.messageSendAt?.seconds
-        )
+        (snapshot) => {
+          const messagesGetting = snapshot.docs.map((doc) => {
+            return {
+              id: doc.id,
+              ...doc.data(),
+            };
+          });
+          setAllMessages(
+            messagesGetting.sort(
+              (a, b) => a?.messageSendAt?.seconds - b?.messageSendAt?.seconds
+            )
+          );
+        }
       );
+
+      return () => {
+        unsubscribe();
+      };
+    } catch (error) {
+      errorShow(error.message);
     }
-  }, [messagesMe, messagesYou]);
+  }, [chat.chatOpenData?.allUserID, loginUser?.uid]);
 
   // Message Getting
   // Message Getting
@@ -302,7 +288,6 @@ const ChatSpaceApp = () => {
     }
   }, [allMessages]);
 
-  const [messageID, setMessageID] = useState();
   // Message DeleteForMe Handler
   // Message DeleteForMe Handler
   const messageDeleteForMeHandler = async () => {
@@ -417,6 +402,8 @@ const ChatSpaceApp = () => {
   // Chat Search Handler
   // Chat Search Handler
 
+  // Chats
+  // Chats
   const contacts =
     outSideUsers?.length === 0 ? (
       <CircularProgress
@@ -474,6 +461,8 @@ const ChatSpaceApp = () => {
         );
       })
     );
+  // Chats
+  // Chats
 
   return (
     <Fragment>
