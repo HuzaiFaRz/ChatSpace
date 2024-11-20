@@ -60,8 +60,8 @@ const ChatSpaceApp = () => {
   }, []);
 
   const { loginUser } = useAuth();
-  // States
-  // States
+  // States And Hooks
+  // States And Hooks
   const [outSideUsers, setOutSideUsers] = useState([]);
   const [currentUser, setCurrentUser] = useState({});
   const [logOutLoading, setLogOutLoading] = useState(false);
@@ -69,6 +69,7 @@ const ChatSpaceApp = () => {
     chatOpen: false,
     chatOpenData: undefined,
   });
+  const chatList = useRef(null);
   const [profileRightBarOpen, setProfileRightBarOpen] = useState(false);
   const [chatsLeftBarOpen, setChatsLeftBarOpen] = useState(false);
   const [openUserModal, setOpenUserModal] = useState(false);
@@ -76,14 +77,13 @@ const ChatSpaceApp = () => {
   const [editMessageModal, setEditMessageModal] = useState(false);
   const [messageInput, setMessageInput] = useState("");
   const [messageEditInput, setMessageEditInput] = useState("");
-  const [messagesMe, setMessagesMe] = useState();
-  const [messagesYou, setMessagesYou] = useState();
   const [allMessages, setAllMessages] = useState();
   const [editMessageLoading, setEditMessageLoading] = useState(false);
   const [deleteMessageLoading, setDeleteMessageLoading] = useState(false);
   const [chatSearchInput, setChatSearchInput] = useState("");
-  // States
-  // States
+  const [messageID, setMessageID] = useState();
+  // States And Hooks
+  // States And Hooks
 
   // Massege Scroll Bar Set
   // Massege Scroll Bar Set
@@ -162,37 +162,40 @@ const ChatSpaceApp = () => {
     color: "#075E54",
     fontSize: "1rem",
   };
-
   // Default Style
   // Default Style
 
   // UserGetting
   // UserGetting
   useEffect(() => {
-    const UsersDocRef = query(
-      collection(db, "Users"),
-      orderBy("signupTime", "asc")
-    );
-    const allUsersSnapShot = onSnapshot(UsersDocRef, (snapshot) => {
-      const allUserDataSnapShot = snapshot.docs.map((allUsersData) => {
-        return {
-          allUserID: allUsersData.id,
-          allUserDATA: allUsersData.data(),
-        };
-      });
-      const outSideUserFiltered = allUserDataSnapShot.filter(
-        (data) => data.allUserID !== loginUser.uid
+    try {
+      const UsersDocRef = query(
+        collection(db, "Users"),
+        orderBy("signupTime", "asc")
       );
-      allUserDataSnapShot
-        .filter((data) => data.allUserID === loginUser.uid)
-        .map((data) => {
-          setCurrentUser(data);
+      const allUsersSnapShot = onSnapshot(UsersDocRef, (snapshot) => {
+        const allUserDataSnapShot = snapshot.docs.map((allUsersData) => {
+          return {
+            allUserID: allUsersData.id,
+            allUserDATA: allUsersData.data(),
+          };
         });
-      setOutSideUsers(outSideUserFiltered);
-    });
-    return () => {
-      allUsersSnapShot();
-    };
+        const outSideUserFiltered = allUserDataSnapShot.filter(
+          (data) => data.allUserID !== loginUser.uid
+        );
+        allUserDataSnapShot
+          .filter((data) => data.allUserID === loginUser.uid)
+          .map((data) => {
+            setCurrentUser(data);
+          });
+        setOutSideUsers(outSideUserFiltered);
+      });
+      return () => {
+        allUsersSnapShot();
+      };
+    } catch (error) {
+      errorShow(error.message);
+    }
   }, [loginUser.uid]);
   // UserGetting
   // UserGetting
@@ -218,11 +221,6 @@ const ChatSpaceApp = () => {
         messageSendBy: loginUser.uid,
         messageSendTo: chat.chatOpenData?.allUserID,
       };
-      // setAllMessages((prev) =>
-      //   [...prev, newMessage]?.sort((a, b) => {
-      //     return a.messageSendAt - b.messageSendAt;
-      //   })
-      // );
       await addDoc(massegesCollection, newMessage);
       setMessageInput("");
       if (messageBody.current) {
@@ -238,63 +236,47 @@ const ChatSpaceApp = () => {
 
   // Message Getting
   // Message Getting
-
   useEffect(() => {
-    if (!chat?.chatOpenData?.allUserID) {
-      return;
-    }
-    const unsubscribeMe = onSnapshot(
-      query(
-        collection(db, "Messages"),
-        orderBy("messageSendAt", "asc"),
-        where("messageSendBy", "==", loginUser?.uid),
-        where("messageSendTo", "==", chat.chatOpenData?.allUserID)
-      ),
-
-      (snapshot) => {
-        const messagesMeGetting = snapshot.docs.map((doc) => {
-          return {
-            id: doc.id,
-            ...doc.data(),
-          };
-        });
-        setMessagesMe(messagesMeGetting);
+    try {
+      if (!chat?.chatOpenData?.allUserID) {
+        return;
       }
-    );
+      const unsubscribe = onSnapshot(
+        query(
+          collection(db, "Messages"),
+          orderBy("messageSendAt", "asc"),
+          where("messageSendBy", "in", [
+            loginUser?.uid,
+            chat.chatOpenData?.allUserID,
+          ]),
+          where("messageSendTo", "in", [
+            chat.chatOpenData?.allUserID,
+            loginUser?.uid,
+          ])
+        ),
 
-    const unsubscribeYou = onSnapshot(
-      query(
-        collection(db, "Messages"),
-        orderBy("messageSendAt", "desc"),
-        where("messageSendBy", "==", chat.chatOpenData?.allUserID),
-        where("messageSendTo", "==", loginUser?.uid)
-      ),
-      (snapshot) => {
-        const messagesYouGetting = snapshot.docs.map((doc) => {
-          return {
-            id: doc.id,
-            ...doc.data(),
-          };
-        });
-        setMessagesYou(messagesYouGetting);
-      }
-    );
-
-    return () => {
-      unsubscribeMe();
-      unsubscribeYou();
-    };
-  }, [chat.chatOpenData?.allUserID, loginUser?.uid]);
-
-  useEffect(() => {
-    if (messagesMe && messagesYou) {
-      setAllMessages(
-        [...messagesMe, ...messagesYou].sort(
-          (a, b) => a?.messageSendAt?.seconds - b?.messageSendAt?.seconds
-        )
+        (snapshot) => {
+          const messagesGetting = snapshot.docs.map((doc) => {
+            return {
+              id: doc.id,
+              ...doc.data(),
+            };
+          });
+          setAllMessages(
+            messagesGetting.sort(
+              (a, b) => a?.messageSendAt?.seconds - b?.messageSendAt?.seconds
+            )
+          );
+        }
       );
+
+      return () => {
+        unsubscribe();
+      };
+    } catch (error) {
+      errorShow(error.message);
     }
-  }, [messagesMe, messagesYou]);
+  }, [chat.chatOpenData?.allUserID, loginUser?.uid]);
 
   // Message Getting
   // Message Getting
@@ -306,7 +288,6 @@ const ChatSpaceApp = () => {
     }
   }, [allMessages]);
 
-  const [messageID, setMessageID] = useState();
   // Message DeleteForMe Handler
   // Message DeleteForMe Handler
   const messageDeleteForMeHandler = async () => {
@@ -402,7 +383,11 @@ const ChatSpaceApp = () => {
   const chatList = useRef(null);
   const chatSearchHandler = (event) => {
     setChatSearchInput(event.target.value);
+<<<<<<< HEAD
     outSideUsers.forEach((data, index) => {
+=======
+    outSideUsers.filter((data, index) => {
+>>>>>>> b1d2d24d200894a7a7b36bf59f9fb1e2876bc688
       if (
         data.allUserDATA.signUpName
           .toLowerCase()
@@ -410,14 +395,25 @@ const ChatSpaceApp = () => {
           .includes(event.target.value.toLowerCase().replaceAll(" ", ""))
       ) {
         if (chatList.current) {
+<<<<<<< HEAD
           return (chatList.current);
         }
+=======
+          const chatElements = chatList.current.children;
+          chatElements[index].style.display = "flex";
+        }
+      } else {
+        const chatElements = chatList.current.children;
+        chatElements[index].style.display = "none";
+>>>>>>> b1d2d24d200894a7a7b36bf59f9fb1e2876bc688
       }
     });
   };
   // Chat Search Handler
   // Chat Search Handler
 
+  // Chats
+  // Chats
   const contacts =
     outSideUsers?.length === 0 ? (
       <CircularProgress
@@ -476,6 +472,8 @@ const ChatSpaceApp = () => {
         );
       })
     );
+  // Chats
+  // Chats
 
   return (
     <Fragment>
@@ -567,6 +565,7 @@ const ChatSpaceApp = () => {
             display: { xs: "block", sm: "none" },
           }}
         >
+<<<<<<< HEAD
           {contacts}
         </Drawer>
         <Drawer
@@ -632,6 +631,8 @@ const ChatSpaceApp = () => {
             backgroundColor: "#075E54",
           }}
         >
+=======
+>>>>>>> b1d2d24d200894a7a7b36bf59f9fb1e2876bc688
           <Box
             sx={{
               width: "100%",
@@ -675,6 +676,123 @@ const ChatSpaceApp = () => {
               gap: "15px",
               padding: "10px 0",
             }}
+            ref={chatList}
+          >
+            {contacts}
+          </Box>
+        </Drawer>
+        <Drawer
+          anchor={"right"}
+          open={profileRightBarOpen["right"]}
+          onClose={toggleRightDrawer("right", false)}
+        >
+          <Box
+            component={"div"}
+            sx={{
+              width: "100%",
+              height: "100%",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+              gap: "20px",
+              textAlign: "center",
+            }}
+          >
+            <Box
+              component={"img"}
+              sx={{
+                borderRadius: "50%",
+                width: "100px",
+                height: "100px",
+                objectFit: "cover",
+                objectPosition: "center",
+              }}
+              src={currentUser?.allUserDATA?.signUpProfile}
+              alt="Profile Img"
+            />
+            <Typography
+              sx={{
+                width: "100%",
+                fontWeight: "400",
+                color: "#fff",
+                fontSize: { xs: "1.5rem", sm: "2rem" },
+              }}
+            >
+              Hi ! {currentUser?.allUserDATA?.signUpName}
+            </Typography>
+            <Typography
+              id="modal-modal-description"
+              sx={{ color: "white", width: "100%" }}
+            >
+              {currentUser?.allUserDATA?.signUpEmail}
+            </Typography>
+          </Box>
+        </Drawer>
+      </Box>
+      <Box
+        sx={{
+          width: "100%",
+          height: "100vh",
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <Box
+          sx={{
+            display: { xs: "none", sm: "block" },
+            justifyContent: outSideUsers.length !== 0 ? "flex-start" : "center",
+            width: { xs: "0%", sm: "30%" },
+            height: "100%",
+            backgroundColor: "#075E54",
+          }}
+        >
+          <Box
+            sx={{
+              width: "100%",
+              backgroundColor: "#075E54",
+              borderBottom: "2.5px solid #fff",
+              p: 2,
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "space-evenly",
+              alignItems: "center",
+              height: "10%",
+            }}
+          >
+            <Input
+              type="text"
+              placeholder="Search By Name"
+              sx={{
+                width: "100%",
+                backgroundColor: "#fff",
+                padding: "10px 15px",
+                color: "#075E54",
+                borderRadius: "20px",
+              }}
+              disableUnderline={true}
+              value={chatSearchInput}
+              onChange={(event) => {
+                chatSearchHandler(event);
+              }}
+            />
+          </Box>
+
+          <Box
+            sx={{
+              width: "100%",
+              height: "100%",
+              overflowY: "auto",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "flex-start",
+              alignItems: "center",
+              gap: "15px",
+              padding: "10px 0",
+            }}
+            ref={chatList}
           >
             {contacts}
           </Box>
@@ -686,7 +804,7 @@ const ChatSpaceApp = () => {
             flexDirection: "column",
             justifyContent: "center",
             alignItems: "center",
-            width: { xs: "100%", sm: "60%" },
+            width: { xs: "100%", sm: "70%" },
             height: "100%",
             backgroundColor: "#128C7E",
             position: "relative",
@@ -905,11 +1023,6 @@ const ChatSpaceApp = () => {
                       allMessages?.map((data, index) => {
                         const { messageSendBy, messageText, messageEdited } =
                           data;
-
-                        console.log(
-                          data?.messageDeleteForMe?.includes(loginUser.uid)
-                        );
-
                         const messageSendAtConvert =
                           data?.messageSendAt?.seconds * 1000 +
                           data?.messageSendAt?.nanoseconds / 1000000;
