@@ -380,35 +380,27 @@ const ChatSpaceApp = () => {
 
   // Chat Search Handler
   // Chat Search Handler
-  const chatList = useRef(null);
   const chatSearchHandler = (event) => {
     setChatSearchInput(event.target.value);
-<<<<<<< HEAD
-    outSideUsers.forEach((data, index) => {
-=======
-    outSideUsers.filter((data, index) => {
->>>>>>> b1d2d24d200894a7a7b36bf59f9fb1e2876bc688
-      if (
-        data.allUserDATA.signUpName
-          .toLowerCase()
-          .replaceAll(" ", "")
-          .includes(event.target.value.toLowerCase().replaceAll(" ", ""))
-      ) {
-        if (chatList.current) {
-<<<<<<< HEAD
-          return (chatList.current);
-        }
-=======
-          const chatElements = chatList.current.children;
-          chatElements[index].style.display = "flex";
-        }
+
+    const searchInput = event.target.value.toLowerCase().replaceAll(" ", "");
+    const chatElements = chatList?.current?.children;
+
+    if (!chatElements) return;
+
+    Array.from(chatElements).forEach((element, index) => {
+      const userName = outSideUsers[index].allUserDATA.signUpName
+        .toLowerCase()
+        .replaceAll(" ", "");
+
+      if (userName.includes(searchInput)) {
+        element.style.display = "flex";
       } else {
-        const chatElements = chatList.current.children;
-        chatElements[index].style.display = "none";
->>>>>>> b1d2d24d200894a7a7b36bf59f9fb1e2876bc688
+        element.style.display = "none";
       }
     });
   };
+
   // Chat Search Handler
   // Chat Search Handler
 
@@ -443,7 +435,6 @@ const ChatSpaceApp = () => {
               padding: "15px 15px",
               cursor: "pointer",
             }}
-            ref={chatList}
             onClick={() => {
               setChat((prevSetChat) => ({
                 ...prevSetChat,
@@ -556,6 +547,7 @@ const ChatSpaceApp = () => {
           </Button>
         </Box>
       </AppBar>
+
       <Box>
         <Drawer
           anchor={"left"}
@@ -565,9 +557,55 @@ const ChatSpaceApp = () => {
             display: { xs: "block", sm: "none" },
           }}
         >
-<<<<<<< HEAD
-          {contacts}
+          <Box
+            sx={{
+              width: "100%",
+              backgroundColor: "#075E54",
+              borderBottom: "2.5px solid #fff",
+              p: 2,
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "space-evenly",
+              alignItems: "center",
+              height: "10%",
+            }}
+          >
+            <Input
+              type="text"
+              placeholder="Search By Name"
+              sx={{
+                width: "100%",
+                backgroundColor: "#fff",
+                padding: "10px 15px",
+                color: "#075E54",
+                borderRadius: "20px",
+              }}
+              disableUnderline={true}
+              value={chatSearchInput}
+              onChange={(event) => {
+                chatSearchHandler(event);
+              }}
+            />
+          </Box>
+
+          <Box
+            sx={{
+              width: "100%",
+              height: "100%",
+              overflowY: "auto",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "flex-start",
+              alignItems: "center",
+              gap: "15px",
+              padding: "10px 0",
+            }}
+            ref={chatList}
+          >
+            {contacts}
+          </Box>
         </Drawer>
+
         <Drawer
           anchor={"right"}
           open={profileRightBarOpen["right"]}
@@ -612,124 +650,7 @@ const ChatSpaceApp = () => {
           </Box>
         </Drawer>
       </Box>
-      <Box
-        sx={{
-          width: "100%",
-          height: "100vh",
-          display: "flex",
-          flexDirection: "row",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <Box
-          sx={{
-            display: { xs: "none", sm: "block" },
-            justifyContent: outSideUsers.length !== 0 ? "flex-start" : "center",
-            width: { xs: "0%", sm: "40%" },
-            height: "100%",
-            backgroundColor: "#075E54",
-          }}
-        >
-=======
->>>>>>> b1d2d24d200894a7a7b36bf59f9fb1e2876bc688
-          <Box
-            sx={{
-              width: "100%",
-              backgroundColor: "#075E54",
-              borderBottom: "2.5px solid #fff",
-              p: 2,
-              display: "flex",
-              flexDirection: "row",
-              justifyContent: "space-evenly",
-              alignItems: "center",
-              height: "100px",
-            }}
-          >
-            <Input
-              type="text"
-              placeholder="Search By Name"
-              sx={{
-                width: "100%",
-                backgroundColor: "#fff",
-                padding: "10px 15px",
-                color: "#075E54",
-                borderRadius: "20px",
-              }}
-              disableUnderline={true}
-              value={chatSearchInput}
-              onChange={(event) => {
-                chatSearchHandler(event);
-              }}
-            />
-          </Box>
 
-          <Box
-            sx={{
-              width: "100%",
-              height: "100%",
-              overflowY: "auto",
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "flex-start",
-              alignItems: "center",
-              gap: "15px",
-              padding: "10px 0",
-            }}
-            ref={chatList}
-          >
-            {contacts}
-          </Box>
-        </Drawer>
-        <Drawer
-          anchor={"right"}
-          open={profileRightBarOpen["right"]}
-          onClose={toggleRightDrawer("right", false)}
-        >
-          <Box
-            component={"div"}
-            sx={{
-              width: "100%",
-              height: "100%",
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "center",
-              alignItems: "center",
-              gap: "20px",
-              textAlign: "center",
-            }}
-          >
-            <Box
-              component={"img"}
-              sx={{
-                borderRadius: "50%",
-                width: "100px",
-                height: "100px",
-                objectFit: "cover",
-                objectPosition: "center",
-              }}
-              src={currentUser?.allUserDATA?.signUpProfile}
-              alt="Profile Img"
-            />
-            <Typography
-              sx={{
-                width: "100%",
-                fontWeight: "400",
-                color: "#fff",
-                fontSize: { xs: "1.5rem", sm: "2rem" },
-              }}
-            >
-              Hi ! {currentUser?.allUserDATA?.signUpName}
-            </Typography>
-            <Typography
-              id="modal-modal-description"
-              sx={{ color: "white", width: "100%" }}
-            >
-              {currentUser?.allUserDATA?.signUpEmail}
-            </Typography>
-          </Box>
-        </Drawer>
-      </Box>
       <Box
         sx={{
           width: "100%",
