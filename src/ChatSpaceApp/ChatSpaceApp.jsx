@@ -399,14 +399,19 @@ const ChatSpaceApp = () => {
 
   // Chat Search Handler
   // Chat Search Handler
+  const chatList = useRef(null);
   const chatSearchHandler = (event) => {
     setChatSearchInput(event.target.value);
-    outSideUsers.forEach((data) => {
+    outSideUsers.forEach((data, index) => {
       if (
-        event.target.value.toLocaleLowerCase() ===
-        data.allUserDATA.signUpName.toLocaleLowerCase()
+        data.allUserDATA.signUpName
+          .toLowerCase()
+          .replaceAll(" ", "")
+          .includes(event.target.value.toLowerCase().replaceAll(" ", ""))
       ) {
-        console.log(data.allUserDATA.signUpName);
+        if (chatList.current) {
+          return (chatList.current);
+        }
       }
     });
   };
@@ -442,6 +447,7 @@ const ChatSpaceApp = () => {
               padding: "15px 15px",
               cursor: "pointer",
             }}
+            ref={chatList}
             onClick={() => {
               setChat((prevSetChat) => ({
                 ...prevSetChat,
@@ -610,7 +616,7 @@ const ChatSpaceApp = () => {
       <Box
         sx={{
           width: "100%",
-          height: { xs: "85vh", sm: "92vh" },
+          height: "100vh",
           display: "flex",
           flexDirection: "row",
           justifyContent: "center",
