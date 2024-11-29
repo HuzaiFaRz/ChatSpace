@@ -415,72 +415,123 @@ const ChatSpaceApp = () => {
         }}
       />
     ) : (
-      outSideUsers?.map((data, index) => {
-        return (
-          <List
-            key={index}
+      <>
+        <Box
+          sx={{
+            width: "100%",
+            height: "10%",
+            backgroundColor: "#075E54",
+            padding: "0px 15px",
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "space-evenly",
+            alignItems: "center",
+          }}
+        >
+          <Input
+            type="text"
+            placeholder="Search By Name"
             sx={{
               width: "100%",
-              "&:hover": {
-                backgroundColor: "rgba(0,0,0,0.3)",
-              },
-              "&:focus": {
-                backgroundColor: "rgba(0,0,0,0.6)",
-              },
-              display: "flex",
-              flexDirection: "row",
-              justifyContent: "space-between",
-              alignItems: "center",
-              gap: "10px",
-              padding: "15px 15px",
-              cursor: "pointer",
+              backgroundColor: "#fff",
+              padding: "10px 15px",
+              color: "#075E54",
+              borderRadius: "20px",
             }}
-            onClick={() => {
-              setChat((prevSetChat) => ({
-                ...prevSetChat,
-                chatOpen: true,
-                chatOpenData: data,
-              }));
+            disableUnderline={true}
+            value={chatSearchInput}
+            onChange={(event) => {
+              chatSearchHandler(event);
             }}
-          >
-            <Box
-              component={"img"}
-              sx={{
-                borderRadius: "50%",
-                width: "30px",
-                height: "30px",
-                objectFit: "cover",
-                objectPosition: "center",
-              }}
-              src={data?.allUserDATA?.signUpProfile}
-              alt="Profile Img"
-            />
-            <ListItemText
-              primary={data?.allUserDATA?.signUpName}
-              sx={{ color: "#fff" }}
-            />
-          </List>
-        );
-      })
+          />
+        </Box>
+
+        <Box
+          sx={{
+            width: "100%",
+            height: "90%",
+            overflowY: "auto",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "flex-start",
+            alignItems: "center",
+            gap: "15px",
+            padding: "10px 0",
+          }}
+          ref={chatList}
+        >
+          {outSideUsers?.map((data, index) => {
+            return (
+              <List
+                key={index}
+                sx={{
+                  width: "100%",
+                  "&:hover": {
+                    backgroundColor: "rgba(0,0,0,0.6)",
+                  },
+                  "&:focus": {
+                    backgroundColor: "rgba(0,0,0,0.6)",
+                  },
+                  backgroundColor: "rgba(0,0,0,0.3)",
+                  display: "flex",
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  gap: "10px",
+                  padding: "15px 15px",
+                  cursor: "pointer",
+                }}
+                onClick={() => {
+                  setChat((prevSetChat) => ({
+                    ...prevSetChat,
+                    chatOpen: true,
+                    chatOpenData: data,
+                  }));
+                }}
+              >
+                <Box
+                  component={"img"}
+                  sx={{
+                    borderRadius: "50%",
+                    width: "30px",
+                    height: "30px",
+                    objectFit: "cover",
+                    objectPosition: "center",
+                  }}
+                  src={data?.allUserDATA?.signUpProfile}
+                  alt="Profile Img"
+                />
+                <ListItemText
+                  primary={data?.allUserDATA?.signUpName}
+                  sx={{ color: "#fff" }}
+                />
+              </List>
+            );
+          })}
+        </Box>
+      </>
     );
+
   // Chats
   // Chats
 
   return (
     <Fragment>
       <ToastContainer />
+
       <AppBar
-        position="static"
         sx={{
+          position: "fixed",
+          top: "0",
+          left: "0",
+          height: { xs: "15%", sm: "10%" },
           display: "flex",
           flexDirection: "row",
           justifyContent: "space-between",
           alignItems: "center",
-          padding: "15px 15px",
+          padding: "0px 15px",
           width: "100%",
           backgroundColor: "#128C7E",
-          boxShadow: "none",
-          borderBottom: "2.5px solid #fff",
         }}
       >
         <Box
@@ -547,181 +598,88 @@ const ChatSpaceApp = () => {
         </Box>
       </AppBar>
 
-      <Box>
-        <Drawer
-          anchor={"left"}
-          open={chatsLeftBarOpen["left"]}
-          onClose={toggleLeftDrawer("left", false)}
+      <Drawer
+        anchor={"right"}
+        open={profileRightBarOpen["right"]}
+        onClose={toggleRightDrawer("right", false)}
+      >
+        <Box
+          component={"div"}
           sx={{
-            display: { xs: "block", sm: "none" },
+            width: "100%",
+            height: "100%",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: "20px",
           }}
         >
           <Box
+            component={"img"}
+            sx={{
+              borderRadius: "50%",
+              width: { xs: "50px", sm: "100px" },
+              height: { xs: "50px", sm: "100px" },
+              objectFit: "cover",
+              objectPosition: "center",
+            }}
+            src={currentUser?.allUserDATA?.signUpProfile}
+            alt="Profile Img"
+          />
+          <Typography
             sx={{
               width: "100%",
-              backgroundColor: "#075E54",
-              borderBottom: "2.5px solid #fff",
-              p: 2,
-              display: "flex",
-              flexDirection: "row",
-              justifyContent: "space-evenly",
-              alignItems: "center",
-              height: "10%",
+              textAlign: "center",
+              fontWeight: "400",
+              color: "#fff",
+              fontSize: { xs: "1rem", sm: "2rem" },
             }}
           >
-            <Input
-              type="text"
-              placeholder="Search By Name"
-              sx={{
-                width: "100%",
-                backgroundColor: "#fff",
-                padding: { xs: "8px 10px", sm: "10px 15px" },
-                color: "#075E54",
-                borderRadius: "20px",
-                fontSize: { xs: "0.8rem", sm: "1.5rem" },
-              }}
-              disableUnderline={true}
-              value={chatSearchInput}
-              onChange={(event) => {
-                chatSearchHandler(event);
-              }}
-            />
-          </Box>
+            Hi ! {currentUser?.allUserDATA?.signUpName}
+          </Typography>
+          <Typography
+            id="modal-modal-description"
+            sx={{ color: "white", fontSize: { xs: "0.88rem", sm: "1.5rem" } }}
+          >
+            {currentUser?.allUserDATA?.signUpEmail}
+          </Typography>
+        </Box>
+      </Drawer>
 
-          <Box
-            sx={{
-              width: "100%",
-              height: "100%",
-              overflowY: "auto",
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "flex-start",
-              alignItems: "center",
-              gap: "15px",
-              padding: "10px 0",
-            }}
-            ref={chatList}
-          >
-            {contacts}
-          </Box>
-        </Drawer>
-
-        <Drawer
-          anchor={"right"}
-          open={profileRightBarOpen["right"]}
-          onClose={toggleRightDrawer("right", false)}
-        >
-          <Box
-            component={"div"}
-            sx={{
-              width: "100%",
-              height: "100%",
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "center",
-              alignItems: "center",
-              gap: "20px",
-            }}
-          >
-            <Box
-              component={"img"}
-              sx={{
-                borderRadius: "50%",
-                width: { xs: "50px", sm: "100px" },
-                height: { xs: "50px", sm: "100px" },
-                objectFit: "cover",
-                objectPosition: "center",
-              }}
-              src={currentUser?.allUserDATA?.signUpProfile}
-              alt="Profile Img"
-            />
-            <Typography
-              sx={{
-                width: "100%",
-                textAlign: "center",
-                fontWeight: "400",
-                color: "#fff",
-                fontSize: { xs: "1rem", sm: "2rem" },
-              }}
-            >
-              Hi ! {currentUser?.allUserDATA?.signUpName}
-            </Typography>
-            <Typography
-              id="modal-modal-description"
-              sx={{ color: "white", fontSize: { xs: "0.88rem", sm: "1.5rem" } }}
-            >
-              {currentUser?.allUserDATA?.signUpEmail}
-            </Typography>
-          </Box>
-        </Drawer>
-      </Box>
+      <Drawer
+        anchor={"left"}
+        open={chatsLeftBarOpen["left"]}
+        onClose={toggleLeftDrawer("left", false)}
+        sx={{
+          display: { xs: "flex", sm: "none" },
+        }}
+      >
+        {contacts}
+      </Drawer>
 
       <Box
         sx={{
           width: "100%",
-          height: "100%",
+          // height: { xs: "calc(100% - 120px)", sm: "calc(100% - 80px)" },
+          height: { xs: "85%", sm: "90%" },
           display: "flex",
-          flexDirection: "row",
-          justifyContent: "center",
-          alignItems: "center",
         }}
       >
         <Box
           sx={{
-            display: { xs: "none", sm: "block" },
-            justifyContent: "center",
+            display: { xs: "none", sm: "flex" },
+            flexDirection: "column",
+            justifyContent:
+              outSideUsers?.length === 0 ? "center" : "flex-start",
+            alignItems: "center",
             width: { xs: "0%", sm: "30%" },
+
             height: "100%",
             backgroundColor: "#075E54",
           }}
         >
-          <Box
-            sx={{
-              width: "100%",
-              backgroundColor: "#075E54",
-              borderBottom: "2.5px solid #fff",
-              p: 2,
-              display: "flex",
-              flexDirection: "row",
-              justifyContent: "space-evenly",
-              alignItems: "center",
-              height: "10%",
-            }}
-          >
-            <Input
-              type="text"
-              placeholder="Search By Name"
-              sx={{
-                width: "100%",
-                backgroundColor: "#fff",
-                padding: "10px 15px",
-                color: "#075E54",
-                borderRadius: "20px",
-              }}
-              disableUnderline={true}
-              value={chatSearchInput}
-              onChange={(event) => {
-                chatSearchHandler(event);
-              }}
-            />
-          </Box>
-
-          <Box
-            sx={{
-              width: "100%",
-              height: "100%",
-              overflowY: "auto",
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "flex-start",
-              alignItems: "center",
-              gap: "15px",
-              padding: "10px 0",
-            }}
-            ref={chatList}
-          >
-            {contacts}
-          </Box>
+          {contacts}
         </Box>
 
         <Box
@@ -744,9 +702,6 @@ const ChatSpaceApp = () => {
                   width: "100%",
                   height: "100%",
                   position: "relative",
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
                 }}
               >
                 <Box
@@ -760,8 +715,6 @@ const ChatSpaceApp = () => {
                     aligmItems: "center",
                     padding: "10px 10px",
                     borderBottom: "2.5px solid #fff",
-                    position: "absolute",
-                    top: "0%",
                     height: "10%",
                   }}
                 >
@@ -909,12 +862,14 @@ const ChatSpaceApp = () => {
                     />
                   </Box>
                 </Box>
+
                 <Box
                   ref={messageBody}
                   id="messegeBody"
                   sx={{
                     width: "100%",
                     height: "80%",
+                    overflowY: "auto",
                     overflowX: "hidden",
                   }}
                 >
@@ -1241,20 +1196,18 @@ const ChatSpaceApp = () => {
                     </Modal>
                   </Box>
                 </Box>
+
                 <Box
                   component={"form"}
                   id="messegeForm footer"
                   sx={{
                     display: "flex",
                     flexDirection: "row",
-                    justifyContent: "flex-start",
+                    justifyContent: "center",
                     alignItems: "center",
                     width: "100%",
                     backgroundColor: "#075E54",
                     padding: "10px 10px",
-                    borderLeft: "2.5px solid #fff",
-                    position: "absolute",
-                    bottom: "0",
                     height: "10%",
                   }}
                   onSubmit={messageFormHandler}
@@ -1264,7 +1217,7 @@ const ChatSpaceApp = () => {
                     placeholder="Type Messege"
                     id="messegeInput"
                     sx={{
-                      width: { xs: "80%", md: "90%" },
+                      width: { xs: "80%", sm: "90%" },
                       backgroundColor: "#fff",
                       padding: { xs: "6px 10px", sm: "10px 15px" },
                       color: "#075E54",
@@ -1282,11 +1235,11 @@ const ChatSpaceApp = () => {
                       /^\s*$/.test(messageInput) ||
                       messageInput.trim().length === 0
                     }
-                    sx={{ width: { xs: "20%", md: "10%" } }}
+                    sx={{ width: { xs: "20%", sm: "10%" } }}
                   >
                     <SendIcon
                       sx={{
-                        fontSize: { xs: "2.5rem", sm: "2.8rem" },
+                        fontSize: { xs: "2.1rem", sm: "2.8rem" },
                         color: "#128C7E",
                         padding: { xs: "3px 6px", sm: "5px 10px" },
                         cursor: "pointer",
