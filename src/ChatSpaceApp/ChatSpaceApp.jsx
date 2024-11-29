@@ -519,756 +519,771 @@ const ChatSpaceApp = () => {
     <Fragment>
       <ToastContainer />
 
-      <AppBar
+      <Box
         sx={{
-          position: "fixed",
-          top: "0",
-          left: "0",
-          height: { xs: "15%", sm: "10%" },
-          display: "flex",
-          flexDirection: "row",
-          justifyContent: "space-between",
-          alignItems: "center",
-          padding: "0px 15px",
+          height: "100vh",
           width: "100%",
-          backgroundColor: "#128C7E",
+          display: "flex",
+          alignItems: "flex-end",
         }}
       >
-        <Box
+        <AppBar
           sx={{
+            position: "fixed",
+            top: "0",
+            left: "0",
+            height: { xs: "15%", sm: "10%" },
             display: "flex",
-            flexDirection: { xs: "column", sm: "row" },
-            justifyContent: "center",
+            flexDirection: "row",
+            justifyContent: "space-between",
             alignItems: "center",
-            gap: "10px",
-          }}
-        >
-          <Button
-            onClick={toggleLeftDrawer("left", true)}
-            sx={{
-              padding: "10px 15px",
-              backgroundColor: "white",
-              color: "#075E54",
-              textTransform: "capitalize",
-              fontSize: "0.8rem",
-              display: { xs: "flex", sm: "none" },
-              flexDirection: "row",
-              justifyContent: "center",
-              alignItems: "center",
-              gap: "10px",
-              borderRadius: "20px",
-            }}
-          >
-            Chats
-            <ContactsIcon sx={iconStyled}></ContactsIcon>
-          </Button>
-          <Typography
-            variant="h6"
-            sx={{ fontWeight: "600", letterSpacing: "1px" }}
-            component="h5"
-          >
-            ChatSpace
-          </Typography>
-        </Box>
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: { xs: "column", sm: "row" },
-            justifyContent: "center",
-            alignItems: "center",
-            gap: "10px",
-          }}
-        >
-          <Button onClick={toggleRightDrawer("right", true)} sx={buttonStyled}>
-            Profile
-            <AccountBoxIcon sx={iconStyled}></AccountBoxIcon>
-          </Button>
-          <Button
-            onClick={logOutHandler}
-            disabled={logOutLoading ? true : false}
-            sx={buttonStyled}
-          >
-            Log Out
-            {logOutLoading ? (
-              <CircularProgress color="#075E54" size="1rem" />
-            ) : (
-              <LogoutIcon sx={iconStyled}></LogoutIcon>
-            )}
-          </Button>
-        </Box>
-      </AppBar>
-
-      <Drawer
-        anchor={"right"}
-        open={profileRightBarOpen["right"]}
-        onClose={toggleRightDrawer("right", false)}
-      >
-        <Box
-          component={"div"}
-          sx={{
+            padding: "0px 15px",
             width: "100%",
-            height: "100%",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
-            alignItems: "center",
-            gap: "20px",
+            backgroundColor: "#128C7E",
           }}
         >
           <Box
-            component={"img"}
             sx={{
-              borderRadius: "50%",
-              width: { xs: "50px", sm: "100px" },
-              height: { xs: "50px", sm: "100px" },
-              objectFit: "cover",
-              objectPosition: "center",
+              display: "flex",
+              flexDirection: { xs: "column", sm: "row" },
+              justifyContent: "center",
+              alignItems: "center",
+              gap: "10px",
             }}
-            src={currentUser?.allUserDATA?.signUpProfile}
-            alt="Profile Img"
-          />
-          <Typography
+          >
+            <Button
+              onClick={toggleLeftDrawer("left", true)}
+              sx={{
+                padding: "10px 15px",
+                backgroundColor: "white",
+                color: "#075E54",
+                textTransform: "capitalize",
+                fontSize: "0.8rem",
+                display: { xs: "flex", sm: "none" },
+                flexDirection: "row",
+                justifyContent: "center",
+                alignItems: "center",
+                gap: "10px",
+                borderRadius: "20px",
+              }}
+            >
+              Chats
+              <ContactsIcon sx={iconStyled}></ContactsIcon>
+            </Button>
+            <Typography
+              variant="h6"
+              sx={{ fontWeight: "600", letterSpacing: "1px" }}
+              component="h5"
+            >
+              ChatSpace
+            </Typography>
+          </Box>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: { xs: "column", sm: "row" },
+              justifyContent: "center",
+              alignItems: "center",
+              gap: "10px",
+            }}
+          >
+            <Button
+              onClick={toggleRightDrawer("right", true)}
+              sx={buttonStyled}
+            >
+              Profile
+              <AccountBoxIcon sx={iconStyled}></AccountBoxIcon>
+            </Button>
+            <Button
+              onClick={logOutHandler}
+              disabled={logOutLoading ? true : false}
+              sx={buttonStyled}
+            >
+              Log Out
+              {logOutLoading ? (
+                <CircularProgress color="#075E54" size="1rem" />
+              ) : (
+                <LogoutIcon sx={iconStyled}></LogoutIcon>
+              )}
+            </Button>
+          </Box>
+        </AppBar>
+
+        <Drawer
+          anchor={"right"}
+          open={profileRightBarOpen["right"]}
+          onClose={toggleRightDrawer("right", false)}
+        >
+          <Box
+            component={"div"}
             sx={{
               width: "100%",
-              textAlign: "center",
-              fontWeight: "400",
-              color: "#fff",
-              fontSize: { xs: "1rem", sm: "2rem" },
+              height: "100%",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+              gap: "20px",
             }}
           >
-            Hi ! {currentUser?.allUserDATA?.signUpName}
-          </Typography>
-          <Typography
-            id="modal-modal-description"
-            sx={{ color: "white", fontSize: { xs: "0.88rem", sm: "1.5rem" } }}
-          >
-            {currentUser?.allUserDATA?.signUpEmail}
-          </Typography>
-        </Box>
-      </Drawer>
+            <Box
+              component={"img"}
+              sx={{
+                borderRadius: "50%",
+                width: { xs: "50px", sm: "100px" },
+                height: { xs: "50px", sm: "100px" },
+                objectFit: "cover",
+                objectPosition: "center",
+              }}
+              src={currentUser?.allUserDATA?.signUpProfile}
+              alt="Profile Img"
+            />
+            <Typography
+              sx={{
+                width: "100%",
+                textAlign: "center",
+                fontWeight: "400",
+                color: "#fff",
+                fontSize: { xs: "1rem", sm: "2rem" },
+              }}
+            >
+              Hi ! {currentUser?.allUserDATA?.signUpName}
+            </Typography>
+            <Typography
+              id="modal-modal-description"
+              sx={{ color: "white", fontSize: { xs: "0.88rem", sm: "1.5rem" } }}
+            >
+              {currentUser?.allUserDATA?.signUpEmail}
+            </Typography>
+          </Box>
+        </Drawer>
 
-      <Drawer
-        anchor={"left"}
-        open={chatsLeftBarOpen["left"]}
-        onClose={toggleLeftDrawer("left", false)}
-        sx={{
-          display: { xs: "flex", sm: "none" },
-        }}
-      >
-        {contacts}
-      </Drawer>
-
-      <Box
-        sx={{
-          width: "100%",
-          // height: { xs: "calc(100% - 120px)", sm: "calc(100% - 80px)" },
-          height: { xs: "85%", sm: "90%" },
-          display: "flex",
-        }}
-      >
-        <Box
+        <Drawer
+          anchor={"left"}
+          open={chatsLeftBarOpen["left"]}
+          onClose={toggleLeftDrawer("left", false)}
           sx={{
-            display: { xs: "none", sm: "flex" },
-            flexDirection: "column",
-            justifyContent:
-              outSideUsers?.length === 0 ? "center" : "flex-start",
-            alignItems: "center",
-            width: { xs: "0%", sm: "30%" },
-
-            height: "100%",
-            backgroundColor: "#075E54",
+            display: { xs: "flex", sm: "none" },
           }}
         >
           {contacts}
-        </Box>
+        </Drawer>
 
         <Box
           sx={{
+            width: "100%",
+            // height: { xs: "calc(100% - 120px)", sm: "calc(100% - 80px)" },
+            height: { xs: "85%", sm: "90%" },
             display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
-            alignItems: "center",
-            width: { xs: "100%", sm: "70%" },
-            height: "100%",
-            backgroundColor: "#128C7E",
-            position: "relative",
           }}
         >
-          {chat.chatOpen ? (
-            <>
-              <Box
-                id="messegeDiv"
-                sx={{
-                  width: "100%",
-                  height: "100%",
-                  position: "relative",
-                }}
-              >
+          <Box
+            sx={{
+              display: { xs: "none", sm: "flex" },
+              flexDirection: "column",
+              justifyContent:
+                outSideUsers?.length === 0 ? "center" : "flex-start",
+              alignItems: "center",
+              width: { xs: "0%", sm: "30%" },
+
+              height: "100%",
+              backgroundColor: "#075E54",
+            }}
+          >
+            {contacts}
+          </Box>
+
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+              width: { xs: "100%", sm: "70%" },
+              height: "100%",
+              backgroundColor: "#128C7E",
+              position: "relative",
+            }}
+          >
+            {chat.chatOpen ? (
+              <>
                 <Box
-                  id="massegeHeader"
+                  id="messegeDiv"
                   sx={{
                     width: "100%",
-                    backgroundColor: "#075E54",
-                    display: "flex",
-                    flexDirection: "row",
-                    justifyContent: "space-between",
-                    aligmItems: "center",
-                    padding: "10px 10px",
-                    borderBottom: "2.5px solid #fff",
-                    height: "10%",
-                  }}
-                >
-                  <List
-                    sx={{
-                      width: "100%",
-                      display: "flex",
-                      flexDirection: "row",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      gap: "10px",
-                      cursor: "pointer",
-                    }}
-                    onClick={userModalHandler}
-                  >
-                    <Modal
-                      open={openUserModal}
-                      onClose={userModalHandler}
-                      closeAfterTransition
-                      slots={{ backdrop: Backdrop }}
-                      slotProps={{
-                        backdrop: {
-                          timeout: 500,
-                        },
-                      }}
-                    >
-                      <Fade in={openUserModal}>
-                        <Box
-                          sx={{
-                            position: "absolute",
-                            top: "50%",
-                            left: "50%",
-                            transform: "translate(-50%, -50%)",
-                            width: { xs: "100%", sm: "600px" },
-                            backgroundColor: "#075E54",
-                            color: "white",
-                            border: "2px solid #fff",
-                            borderRadius: "20px",
-                            boxShadow: 24,
-                            p: 4,
-                            display: "flex",
-                            flexDirection: "row",
-                            justifyContent: "center",
-                            alignItems: "center",
-                            gap: "50px",
-                          }}
-                        >
-                          <Box
-                            component={"img"}
-                            sx={{
-                              borderRadius: "50%",
-                              width: { xs: "50px", sm: "100px" },
-                              height: { xs: "50px", sm: "100px" },
-                              objectFit: "cover",
-                              objectPosition: "center",
-                            }}
-                            src={chat.chatOpenData?.allUserDATA?.signUpProfile}
-                            alt="Profile Img"
-                          />
-                          <Box>
-                            <Typography
-                              id="modal-modal-title"
-                              variant="h6"
-                              component="h6"
-                              sx={{ fontSize: { xs: "1rem", sm: "1.5rem" } }}
-                            >
-                              {chat.chatOpenData?.allUserDATA?.signUpName}
-                            </Typography>
-                            <Typography
-                              id="modal-modal-description"
-                              sx={{
-                                mt: 2,
-                                fontSize: { xs: "0.88rem", sm: "1.2rem" },
-                              }}
-                              component="p"
-                            >
-                              {chat.chatOpenData?.allUserDATA?.signUpEmail}
-                            </Typography>
-                          </Box>
-                        </Box>
-                      </Fade>
-                    </Modal>
-                    <Box
-                      component={"img"}
-                      sx={{
-                        borderRadius: "50%",
-                        width: "30px",
-                        height: "30px",
-                        objectFit: "cover",
-                        objectPosition: "center",
-                      }}
-                      src={chat.chatOpenData?.allUserDATA?.signUpProfile}
-                      alt="Profile Img"
-                    />
-                    <ListItemText
-                      primary={chat.chatOpenData?.allUserDATA?.signUpName}
-                      sx={{
-                        color: "#fff",
-                      }}
-                    />
-                  </List>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      flexDirection: "row",
-                      justifyConetnt: "center",
-                      alignItems: "center",
-                      gap: "20px",
-                    }}
-                  >
-                    <CallIcon
-                      sx={{
-                        transition: "all 0.1s linear",
-                        fontSize: { xs: "1.5rem", sm: "2rem" },
-                        padding: "5px 5px",
-                        cursor: "pointer",
-                        borderRadius: "50%",
-                        backgroundColor: "#fff",
-                        color: "#075E54",
-                      }}
-                    />
-
-                    <VideocamIcon
-                      sx={{
-                        transition: "all 0.1s linear",
-                        fontSize: { xs: "1.5rem", sm: "2rem" },
-                        color: "#128C7E",
-                        padding: "5px 5px",
-                        cursor: "pointer",
-                        borderRadius: "50%",
-                        backgroundColor: "#fff",
-                      }}
-                    />
-
-                    <SearchIcon
-                      sx={{
-                        transition: "all 0.1s linear",
-                        fontSize: { xs: "1.5rem", sm: "2rem" },
-                        color: "#128C7E",
-                        padding: "5px 5px",
-                        cursor: "pointer",
-                        borderRadius: "50%",
-                        backgroundColor: "#fff",
-                      }}
-                    />
-                  </Box>
-                </Box>
-
-                <Box
-                  ref={messageBody}
-                  id="messegeBody"
-                  sx={{
-                    width: "100%",
-                    height: "80%",
-                    overflowY: "auto",
-                    overflowX: "hidden",
+                    height: "100%",
+                    position: "relative",
                   }}
                 >
                   <Box
+                    id="massegeHeader"
                     sx={{
-                      display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      gap: "10px",
                       width: "100%",
+                      backgroundColor: "#075E54",
+                      display: "flex",
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                      aligmItems: "center",
                       padding: "10px 10px",
+                      borderBottom: "2.5px solid #fff",
+                      height: "10%",
                     }}
                   >
-                    {allMessages?.length === 0 ? (
-                      <Typography
-                        sx={{
-                          width: "100%",
-                          textAlign: "center",
-                          fontSize: "2em",
-                          color: "#fff",
-                          position: "absolute",
-                          top: "50%",
-                          left: "50%",
-                          transform: "translate(-50%,-50%)",
+                    <List
+                      sx={{
+                        width: "100%",
+                        display: "flex",
+                        flexDirection: "row",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        gap: "10px",
+                        cursor: "pointer",
+                      }}
+                      onClick={userModalHandler}
+                    >
+                      <Modal
+                        open={openUserModal}
+                        onClose={userModalHandler}
+                        closeAfterTransition
+                        slots={{ backdrop: Backdrop }}
+                        slotProps={{
+                          backdrop: {
+                            timeout: 500,
+                          },
                         }}
                       >
-                        No Messeges
-                      </Typography>
-                    ) : (
-                      allMessages?.map((data, index) => {
-                        const { messageSendBy, messageText, messageEdited } =
-                          data;
-                        const messageSendAtConvert =
-                          data?.messageSendAt?.seconds * 1000 +
-                          data?.messageSendAt?.nanoseconds / 1000000;
-                        const messageSendAtConverted = new Date(
-                          messageSendAtConvert
-                        )?.toLocaleString("en-US", {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                          hour12: "true",
-                          year: "2-digit",
-                          month: "2-digit",
-                          day: "2-digit",
-                        });
-                        return (
-                          <React.Fragment key={index}>
-                            {data?.messageDeleteForMe?.includes(
-                              loginUser.uid
-                            ) || (
-                              <Box
-                                component={"div"}
-                                id="messege"
-                                sx={{
-                                  color:
-                                    messageSendBy === loginUser.uid
-                                      ? "#075E54"
-                                      : "#fff",
-                                  backgroundColor:
-                                    messageSendBy === loginUser.uid
-                                      ? "#fff"
-                                      : "#075E54",
-                                  width: "300px",
-                                  minWidth: "max-content",
-                                  padding: "5px 10px",
-                                  borderRadius: "5px",
-                                  display: "flex",
-                                  flexDirection: "column",
-                                  gap: "5px",
-                                  opacity: data?.messageDeleteForAll
-                                    ? "0.5"
-                                    : "1",
-                                  alignItems: "flex-start",
-                                  alignSelf:
-                                    messageSendBy === loginUser.uid
-                                      ? "flex-end"
-                                      : "flex-start",
-                                }}
+                        <Fade in={openUserModal}>
+                          <Box
+                            sx={{
+                              position: "absolute",
+                              top: "50%",
+                              left: "50%",
+                              transform: "translate(-50%, -50%)",
+                              width: { xs: "100%", sm: "600px" },
+                              backgroundColor: "#075E54",
+                              color: "white",
+                              border: "2px solid #fff",
+                              borderRadius: "20px",
+                              boxShadow: 24,
+                              p: 4,
+                              display: "flex",
+                              flexDirection: "row",
+                              justifyContent: "center",
+                              alignItems: "center",
+                              gap: "50px",
+                            }}
+                          >
+                            <Box
+                              component={"img"}
+                              sx={{
+                                borderRadius: "50%",
+                                width: { xs: "50px", sm: "100px" },
+                                height: { xs: "50px", sm: "100px" },
+                                objectFit: "cover",
+                                objectPosition: "center",
+                              }}
+                              src={
+                                chat.chatOpenData?.allUserDATA?.signUpProfile
+                              }
+                              alt="Profile Img"
+                            />
+                            <Box>
+                              <Typography
+                                id="modal-modal-title"
+                                variant="h6"
+                                component="h6"
+                                sx={{ fontSize: { xs: "1rem", sm: "1.5rem" } }}
                               >
-                                <Typography
-                                  sx={{
-                                    fontSize: data?.messageDeleteForAll
-                                      ? "14px"
-                                      : "15px",
-                                  }}
-                                >
-                                  {data?.messageDeleteForAll
-                                    ? "This Message Has Been Deleted"
-                                    : messageText}
-                                </Typography>
+                                {chat.chatOpenData?.allUserDATA?.signUpName}
+                              </Typography>
+                              <Typography
+                                id="modal-modal-description"
+                                sx={{
+                                  mt: 2,
+                                  fontSize: { xs: "0.88rem", sm: "1.2rem" },
+                                }}
+                                component="p"
+                              >
+                                {chat.chatOpenData?.allUserDATA?.signUpEmail}
+                              </Typography>
+                            </Box>
+                          </Box>
+                        </Fade>
+                      </Modal>
+                      <Box
+                        component={"img"}
+                        sx={{
+                          borderRadius: "50%",
+                          width: "30px",
+                          height: "30px",
+                          objectFit: "cover",
+                          objectPosition: "center",
+                        }}
+                        src={chat.chatOpenData?.allUserDATA?.signUpProfile}
+                        alt="Profile Img"
+                      />
+                      <ListItemText
+                        primary={chat.chatOpenData?.allUserDATA?.signUpName}
+                        sx={{
+                          color: "#fff",
+                        }}
+                      />
+                    </List>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexDirection: "row",
+                        justifyConetnt: "center",
+                        alignItems: "center",
+                        gap: "20px",
+                      }}
+                    >
+                      <CallIcon
+                        sx={{
+                          transition: "all 0.1s linear",
+                          fontSize: { xs: "1.5rem", sm: "2rem" },
+                          padding: "5px 5px",
+                          cursor: "pointer",
+                          borderRadius: "50%",
+                          backgroundColor: "#fff",
+                          color: "#075E54",
+                        }}
+                      />
 
+                      <VideocamIcon
+                        sx={{
+                          transition: "all 0.1s linear",
+                          fontSize: { xs: "1.5rem", sm: "2rem" },
+                          color: "#128C7E",
+                          padding: "5px 5px",
+                          cursor: "pointer",
+                          borderRadius: "50%",
+                          backgroundColor: "#fff",
+                        }}
+                      />
+
+                      <SearchIcon
+                        sx={{
+                          transition: "all 0.1s linear",
+                          fontSize: { xs: "1.5rem", sm: "2rem" },
+                          color: "#128C7E",
+                          padding: "5px 5px",
+                          cursor: "pointer",
+                          borderRadius: "50%",
+                          backgroundColor: "#fff",
+                        }}
+                      />
+                    </Box>
+                  </Box>
+
+                  <Box
+                    ref={messageBody}
+                    id="messegeBody"
+                    sx={{
+                      width: "100%",
+                      height: "80%",
+                      overflowY: "auto",
+                      overflowX: "hidden",
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        gap: "10px",
+                        width: "100%",
+                        padding: "10px 10px",
+                      }}
+                    >
+                      {allMessages?.length === 0 ? (
+                        <Typography
+                          sx={{
+                            width: "100%",
+                            textAlign: "center",
+                            fontSize: "2em",
+                            color: "#fff",
+                            position: "absolute",
+                            top: "50%",
+                            left: "50%",
+                            transform: "translate(-50%,-50%)",
+                          }}
+                        >
+                          No Messeges
+                        </Typography>
+                      ) : (
+                        allMessages?.map((data, index) => {
+                          const { messageSendBy, messageText, messageEdited } =
+                            data;
+                          const messageSendAtConvert =
+                            data?.messageSendAt?.seconds * 1000 +
+                            data?.messageSendAt?.nanoseconds / 1000000;
+                          const messageSendAtConverted = new Date(
+                            messageSendAtConvert
+                          )?.toLocaleString("en-US", {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            hour12: "true",
+                            year: "2-digit",
+                            month: "2-digit",
+                            day: "2-digit",
+                          });
+                          return (
+                            <React.Fragment key={index}>
+                              {data?.messageDeleteForMe?.includes(
+                                loginUser.uid
+                              ) || (
                                 <Box
-                                  sx={{
-                                    width: "100%",
-                                    display: "flex",
-                                    flexDirection: "row",
-                                    justifyContent: "space-evenly",
-                                    alignItems: "center",
-                                    padding: "0px 10px",
-                                  }}
                                   component={"div"}
+                                  id="messege"
+                                  sx={{
+                                    color:
+                                      messageSendBy === loginUser.uid
+                                        ? "#075E54"
+                                        : "#fff",
+                                    backgroundColor:
+                                      messageSendBy === loginUser.uid
+                                        ? "#fff"
+                                        : "#075E54",
+                                    width: "300px",
+                                    minWidth: "max-content",
+                                    padding: "5px 10px",
+                                    borderRadius: "5px",
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    gap: "5px",
+                                    opacity: data?.messageDeleteForAll
+                                      ? "0.5"
+                                      : "1",
+                                    alignItems: "flex-start",
+                                    alignSelf:
+                                      messageSendBy === loginUser.uid
+                                        ? "flex-end"
+                                        : "flex-start",
+                                  }}
                                 >
-                                  {data?.messageDeleteForAll ? null : (
-                                    <>
-                                      {messageEdited && (
-                                        <Typography
-                                          sx={{
-                                            fontSize: "12px",
-                                          }}
-                                        >
-                                          Edited
-                                        </Typography>
-                                      )}
-                                      {data?.messageSendBy ===
-                                        loginUser?.uid && (
-                                        <>
-                                          <Tooltip title={"Delete Message"}>
-                                            <DeleteIcon
-                                              sx={{
-                                                color: "#075E54",
-                                                fontSize: "1.1rem",
-                                                cursor: "pointer",
-                                              }}
-                                              onClick={() => {
-                                                deleteMessageModalHandler();
-                                                setMessageID(data.id);
-                                              }}
-                                            />
-                                          </Tooltip>
-                                          <Tooltip title={"Edit Message"}>
-                                            <EditIcon
-                                              sx={{
-                                                color: "#075E54",
-                                                fontSize: "1.1rem",
-                                                cursor: "pointer",
-                                              }}
-                                              onClick={() => {
-                                                editMessageModalHandler();
-                                                setMessageID(data.id);
-                                              }}
-                                            />
-                                          </Tooltip>
-                                        </>
-                                      )}
+                                  <Typography
+                                    sx={{
+                                      fontSize: data?.messageDeleteForAll
+                                        ? "14px"
+                                        : "15px",
+                                    }}
+                                  >
+                                    {data?.messageDeleteForAll
+                                      ? "This Message Has Been Deleted"
+                                      : messageText}
+                                  </Typography>
+
+                                  <Box
+                                    sx={{
+                                      width: "100%",
+                                      display: "flex",
+                                      flexDirection: "row",
+                                      justifyContent: "space-evenly",
+                                      alignItems: "center",
+                                      padding: "0px 10px",
+                                    }}
+                                    component={"div"}
+                                  >
+                                    {data?.messageDeleteForAll ? null : (
                                       <>
-                                        <Tooltip title={"Copy Message"}>
-                                          <ContentCopyIcon
+                                        {messageEdited && (
+                                          <Typography
                                             sx={{
+                                              fontSize: "12px",
+                                            }}
+                                          >
+                                            Edited
+                                          </Typography>
+                                        )}
+                                        {data?.messageSendBy ===
+                                          loginUser?.uid && (
+                                          <>
+                                            <Tooltip title={"Delete Message"}>
+                                              <DeleteIcon
+                                                sx={{
+                                                  color: "#075E54",
+                                                  fontSize: "1.1rem",
+                                                  cursor: "pointer",
+                                                }}
+                                                onClick={() => {
+                                                  deleteMessageModalHandler();
+                                                  setMessageID(data.id);
+                                                }}
+                                              />
+                                            </Tooltip>
+                                            <Tooltip title={"Edit Message"}>
+                                              <EditIcon
+                                                sx={{
+                                                  color: "#075E54",
+                                                  fontSize: "1.1rem",
+                                                  cursor: "pointer",
+                                                }}
+                                                onClick={() => {
+                                                  editMessageModalHandler();
+                                                  setMessageID(data.id);
+                                                }}
+                                              />
+                                            </Tooltip>
+                                          </>
+                                        )}
+                                        <>
+                                          <Tooltip title={"Copy Message"}>
+                                            <ContentCopyIcon
+                                              sx={{
+                                                color:
+                                                  messageSendBy ===
+                                                  loginUser?.uid
+                                                    ? "#075E54"
+                                                    : "#fff",
+                                                fontSize: "0.9rem",
+                                                cursor: "pointer",
+                                              }}
+                                              onClick={() => {
+                                                messageCopyHandler(messageText);
+                                              }}
+                                            />
+                                          </Tooltip>
+                                          <span
+                                            id="messegeTime"
+                                            style={{
                                               color:
-                                                messageSendBy === loginUser?.uid
+                                                messageSendBy === loginUser.uid
                                                   ? "#075E54"
                                                   : "#fff",
-                                              fontSize: "0.9rem",
-                                              cursor: "pointer",
+                                              fontSize: "0.8rem",
                                             }}
-                                            onClick={() => {
-                                              messageCopyHandler(messageText);
-                                            }}
-                                          />
-                                        </Tooltip>
-                                        <span
-                                          id="messegeTime"
-                                          style={{
-                                            color:
-                                              messageSendBy === loginUser.uid
-                                                ? "#075E54"
-                                                : "#fff",
-                                            fontSize: "0.8rem",
-                                          }}
-                                        >
-                                          {messageSendAtConverted ===
-                                          "Invalid Date"
-                                            ? "Loading....."
-                                            : messageSendAtConverted}
-                                        </span>
+                                          >
+                                            {messageSendAtConverted ===
+                                            "Invalid Date"
+                                              ? "Loading....."
+                                              : messageSendAtConverted}
+                                          </span>
+                                        </>
                                       </>
-                                    </>
-                                  )}
+                                    )}
+                                  </Box>
                                 </Box>
-                              </Box>
-                            )}
-                          </React.Fragment>
-                        );
-                      })
-                    )}
+                              )}
+                            </React.Fragment>
+                          );
+                        })
+                      )}
 
-                    <Modal
-                      open={deleteMessageModal}
-                      onClose={deleteMessageModalHandler}
-                      closeAfterTransition
-                      slots={{ backdrop: Backdrop }}
-                      slotProps={{
-                        backdrop: {
-                          timeout: 500,
-                        },
-                      }}
-                    >
-                      <Fade in={deleteMessageModal}>
-                        <Box
-                          sx={{
-                            position: "absolute",
-                            top: "50%",
-                            left: "50%",
-                            transform: "translate(-50%, -50%)",
-                            width: {
-                              xs: "100%",
-                              sm: "600px",
-                            },
-                            backgroundColor: "#075E54",
-                            color: "white",
-                            border: "2px solid #fff",
-                            borderRadius: "20px",
-                            boxShadow: 24,
-                            p: 4,
-                            display: "flex",
-                            flexDirection: "row",
-                            justifyContent: {
-                              xs: "space-between",
-                              sm: "center",
-                            },
-                            alignItems: "center",
-                            gap: { xs: "0px", sm: "20px" },
-                          }}
-                        >
-                          <Button
-                            sx={buttonStyled}
-                            onClick={() => {
-                              messageDeleteForMeHandler();
-                            }}
-                            disabled={deleteMessageLoading && true}
-                          >
-                            Delete For Me
-                          </Button>
-                          <Button
-                            sx={buttonStyled}
-                            onClick={() => {
-                              messageDeleteForAllHandler();
-                            }}
-                            disabled={deleteMessageLoading && true}
-                          >
-                            Delete For Everyone
-                          </Button>
-                        </Box>
-                      </Fade>
-                    </Modal>
-
-                    <Modal
-                      open={editMessageModal}
-                      onClose={editMessageModalHandler}
-                      closeAfterTransition
-                      slots={{ backdrop: Backdrop }}
-                      slotProps={{
-                        backdrop: {
-                          timeout: 500,
-                        },
-                      }}
-                    >
-                      <Fade in={editMessageModal}>
-                        <Box
-                          component={"form"}
-                          id="messegeEditForm"
-                          onSubmit={messageEditHandler}
-                          sx={{
-                            position: "absolute",
-                            top: "50%",
-                            left: "50%",
-                            transform: "translate(-50%, -50%)",
-                            width: {
-                              xs: "100%",
-                              sm: "600px",
-                            },
-                            backgroundColor: "#075E54",
-                            color: "white",
-                            border: "2px solid #fff",
-                            borderRadius: "20px",
-                            boxShadow: 24,
-                            p: 4,
-                            display: "flex",
-                            flexDirection: "row",
-                            justifyContent: {
-                              xs: "space-between",
-                              sm: "center",
-                            },
-                            alignItems: "center",
-                            gap: { xs: "0px", sm: "20px" },
-                          }}
-                        >
-                          <Input
-                            type="text"
-                            placeholder="Type Edit Messege"
+                      <Modal
+                        open={deleteMessageModal}
+                        onClose={deleteMessageModalHandler}
+                        closeAfterTransition
+                        slots={{ backdrop: Backdrop }}
+                        slotProps={{
+                          backdrop: {
+                            timeout: 500,
+                          },
+                        }}
+                      >
+                        <Fade in={deleteMessageModal}>
+                          <Box
                             sx={{
-                              width: "80%",
-                              backgroundColor: "#fff",
-                              padding: "10px 15px",
-                              color: "#075E54",
+                              position: "absolute",
+                              top: "50%",
+                              left: "50%",
+                              transform: "translate(-50%, -50%)",
+                              width: {
+                                xs: "100%",
+                                sm: "600px",
+                              },
+                              backgroundColor: "#075E54",
+                              color: "white",
+                              border: "2px solid #fff",
                               borderRadius: "20px",
+                              boxShadow: 24,
+                              p: 4,
+                              display: "flex",
+                              flexDirection: "row",
+                              justifyContent: {
+                                xs: "space-between",
+                                sm: "center",
+                              },
+                              alignItems: "center",
+                              gap: { xs: "0px", sm: "20px" },
                             }}
-                            disableUnderline={true}
-                            value={messageEditInput}
-                            onChange={(event) =>
-                              setMessageEditInput(event.target.value)
-                            }
-                            disabled={editMessageLoading && true}
-                          />
-
-                          <IconButton
-                            type="submit"
-                            disabled={editMessageLoading && true}
                           >
-                            <EditIcon
-                              sx={{
-                                fontSize: "3rem",
-                                color: "#128C7E",
-                                padding: "5px 10px",
-                                cursor: "pointer",
-                                borderRadius: "50%",
-                                backgroundColor: "#fff",
+                            <Button
+                              sx={buttonStyled}
+                              onClick={() => {
+                                messageDeleteForMeHandler();
                               }}
+                              disabled={deleteMessageLoading && true}
+                            >
+                              Delete For Me
+                            </Button>
+                            <Button
+                              sx={buttonStyled}
+                              onClick={() => {
+                                messageDeleteForAllHandler();
+                              }}
+                              disabled={deleteMessageLoading && true}
+                            >
+                              Delete For Everyone
+                            </Button>
+                          </Box>
+                        </Fade>
+                      </Modal>
+
+                      <Modal
+                        open={editMessageModal}
+                        onClose={editMessageModalHandler}
+                        closeAfterTransition
+                        slots={{ backdrop: Backdrop }}
+                        slotProps={{
+                          backdrop: {
+                            timeout: 500,
+                          },
+                        }}
+                      >
+                        <Fade in={editMessageModal}>
+                          <Box
+                            component={"form"}
+                            id="messegeEditForm"
+                            onSubmit={messageEditHandler}
+                            sx={{
+                              position: "absolute",
+                              top: "50%",
+                              left: "50%",
+                              transform: "translate(-50%, -50%)",
+                              width: {
+                                xs: "100%",
+                                sm: "600px",
+                              },
+                              backgroundColor: "#075E54",
+                              color: "white",
+                              border: "2px solid #fff",
+                              borderRadius: "20px",
+                              boxShadow: 24,
+                              p: 4,
+                              display: "flex",
+                              flexDirection: "row",
+                              justifyContent: {
+                                xs: "space-between",
+                                sm: "center",
+                              },
+                              alignItems: "center",
+                              gap: { xs: "0px", sm: "20px" },
+                            }}
+                          >
+                            <Input
+                              type="text"
+                              placeholder="Type Edit Messege"
+                              sx={{
+                                width: "80%",
+                                backgroundColor: "#fff",
+                                padding: "10px 15px",
+                                color: "#075E54",
+                                borderRadius: "20px",
+                              }}
+                              disableUnderline={true}
+                              value={messageEditInput}
+                              onChange={(event) =>
+                                setMessageEditInput(event.target.value)
+                              }
+                              disabled={editMessageLoading && true}
                             />
-                          </IconButton>
-                        </Box>
-                      </Fade>
-                    </Modal>
+
+                            <IconButton
+                              type="submit"
+                              disabled={editMessageLoading && true}
+                            >
+                              <EditIcon
+                                sx={{
+                                  fontSize: "3rem",
+                                  color: "#128C7E",
+                                  padding: "5px 10px",
+                                  cursor: "pointer",
+                                  borderRadius: "50%",
+                                  backgroundColor: "#fff",
+                                }}
+                              />
+                            </IconButton>
+                          </Box>
+                        </Fade>
+                      </Modal>
+                    </Box>
+                  </Box>
+
+                  <Box
+                    component={"form"}
+                    id="messegeForm footer"
+                    sx={{
+                      display: "flex",
+                      flexDirection: "row",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      width: "100%",
+                      backgroundColor: "#075E54",
+                      padding: "10px 10px",
+                      height: "10%",
+                    }}
+                    onSubmit={messageFormHandler}
+                  >
+                    <Input
+                      type="text"
+                      placeholder="Type Messege"
+                      id="messegeInput"
+                      sx={{
+                        width: { xs: "80%", sm: "90%" },
+                        backgroundColor: "#fff",
+                        padding: { xs: "6px 10px", sm: "10px 15px" },
+                        color: "#075E54",
+                        borderRadius: "20px",
+                        fontSize: { xs: "0.8rem", sm: "1rem" },
+                      }}
+                      disableUnderline={true}
+                      value={messageInput}
+                      onChange={(event) => setMessageInput(event.target.value)}
+                    />
+                    <IconButton
+                      type="submit"
+                      disabled={
+                        !messageInput ||
+                        /^\s*$/.test(messageInput) ||
+                        messageInput.trim().length === 0
+                      }
+                      sx={{ width: { xs: "20%", sm: "10%" } }}
+                    >
+                      <SendIcon
+                        sx={{
+                          fontSize: { xs: "2.1rem", sm: "2.8rem" },
+                          color: "#128C7E",
+                          padding: { xs: "3px 6px", sm: "5px 10px" },
+                          cursor: "pointer",
+                          borderRadius: "50%",
+                          backgroundColor: "#fff",
+                        }}
+                      />
+                    </IconButton>
                   </Box>
                 </Box>
-
-                <Box
-                  component={"form"}
-                  id="messegeForm footer"
+              </>
+            ) : (
+              <>
+                <Typography
                   sx={{
-                    display: "flex",
-                    flexDirection: "row",
-                    justifyContent: "center",
-                    alignItems: "center",
                     width: "100%",
-                    backgroundColor: "#075E54",
-                    padding: "10px 10px",
-                    height: "10%",
+                    textAlign: "center",
+                    fontSize: "2em",
+                    color: "#fff",
+                    position: "absolute",
+                    top: "50%",
+                    left: "50%",
+                    transform: "translate(-50%,-50%)",
                   }}
-                  onSubmit={messageFormHandler}
                 >
-                  <Input
-                    type="text"
-                    placeholder="Type Messege"
-                    id="messegeInput"
-                    sx={{
-                      width: { xs: "80%", sm: "90%" },
-                      backgroundColor: "#fff",
-                      padding: { xs: "6px 10px", sm: "10px 15px" },
-                      color: "#075E54",
-                      borderRadius: "20px",
-                      fontSize: { xs: "0.8rem", sm: "1rem" },
-                    }}
-                    disableUnderline={true}
-                    value={messageInput}
-                    onChange={(event) => setMessageInput(event.target.value)}
-                  />
-                  <IconButton
-                    type="submit"
-                    disabled={
-                      !messageInput ||
-                      /^\s*$/.test(messageInput) ||
-                      messageInput.trim().length === 0
-                    }
-                    sx={{ width: { xs: "20%", sm: "10%" } }}
-                  >
-                    <SendIcon
-                      sx={{
-                        fontSize: { xs: "2.1rem", sm: "2.8rem" },
-                        color: "#128C7E",
-                        padding: { xs: "3px 6px", sm: "5px 10px" },
-                        cursor: "pointer",
-                        borderRadius: "50%",
-                        backgroundColor: "#fff",
-                      }}
-                    />
-                  </IconButton>
-                </Box>
-              </Box>
-            </>
-          ) : (
-            <>
-              <Typography
-                sx={{
-                  width: "100%",
-                  textAlign: "center",
-                  fontSize: "2em",
-                  color: "#fff",
-                  position: "absolute",
-                  top: "50%",
-                  left: "50%",
-                  transform: "translate(-50%,-50%)",
-                }}
-              >
-                No Chat Open
-              </Typography>
-            </>
-          )}
+                  No Chat Open
+                </Typography>
+              </>
+            )}
+          </Box>
         </Box>
       </Box>
     </Fragment>
