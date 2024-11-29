@@ -476,9 +476,8 @@ const ChatSpaceApp = () => {
           flexDirection: "row",
           justifyContent: "space-between",
           alignItems: "center",
-          padding: "10px 15px",
+          padding: "15px 15px",
           width: "100%",
-          height: { xs: "15vh", sm: "8vh" },
           backgroundColor: "#128C7E",
           boxShadow: "none",
           borderBottom: "2.5px solid #fff",
@@ -649,7 +648,7 @@ const ChatSpaceApp = () => {
             </Typography>
             <Typography
               id="modal-modal-description"
-              sx={{ color: "white", fontSize: { xs: "0.5rem", sm: "1.5rem" } }}
+              sx={{ color: "white", fontSize: { xs: "0.88rem", sm: "1.5rem" } }}
             >
               {currentUser?.allUserDATA?.signUpEmail}
             </Typography>
@@ -660,7 +659,7 @@ const ChatSpaceApp = () => {
       <Box
         sx={{
           width: "100%",
-          height: "100vh",
+          height: "100%",
           display: "flex",
           flexDirection: "row",
           justifyContent: "center",
@@ -670,7 +669,7 @@ const ChatSpaceApp = () => {
         <Box
           sx={{
             display: { xs: "none", sm: "block" },
-            justifyContent: outSideUsers.length !== 0 ? "flex-start" : "center",
+            justifyContent: "center",
             width: { xs: "0%", sm: "30%" },
             height: "100%",
             backgroundColor: "#075E54",
@@ -827,7 +826,7 @@ const ChatSpaceApp = () => {
                               id="modal-modal-title"
                               variant="h6"
                               component="h6"
-                              sx={{ fontSize: { xs: "1rem", sm: "2rem" } }}
+                              sx={{ fontSize: { xs: "1rem", sm: "1.5rem" } }}
                             >
                               {chat.chatOpenData?.allUserDATA?.signUpName}
                             </Typography>
@@ -835,7 +834,7 @@ const ChatSpaceApp = () => {
                               id="modal-modal-description"
                               sx={{
                                 mt: 2,
-                                fontSize: { xs: "0.88rem", sm: "1.5rem" },
+                                fontSize: { xs: "0.88rem", sm: "1.2rem" },
                               }}
                               component="p"
                             >
@@ -870,48 +869,44 @@ const ChatSpaceApp = () => {
                       flexDirection: "row",
                       justifyConetnt: "center",
                       alignItems: "center",
-                      gap: { xs: "5px", sm: "10px" },
+                      gap: "20px",
                     }}
                   >
-                    <IconButton type="submit">
-                      <CallIcon
-                        sx={{
-                          transition: "all 0.1s linear",
-                          fontSize: { xs: "1.4rem", sm: "1.5rem" },
-                          padding: "5px 5px",
-                          cursor: "pointer",
-                          borderRadius: "50%",
-                          backgroundColor: "#fff",
-                          color: "#075E54",
-                        }}
-                      />
-                    </IconButton>
-                    <IconButton type="submit">
-                      <VideocamIcon
-                        sx={{
-                          transition: "all 0.1s linear",
-                          fontSize: { xs: "1.4rem", sm: "1.5rem" },
-                          color: "#128C7E",
-                          padding: "5px 5px",
-                          cursor: "pointer",
-                          borderRadius: "50%",
-                          backgroundColor: "#fff",
-                        }}
-                      />
-                    </IconButton>
-                    <IconButton type="submit">
-                      <SearchIcon
-                        sx={{
-                          transition: "all 0.1s linear",
-                          fontSize: { xs: "1.4rem", sm: "1.5rem" },
-                          color: "#128C7E",
-                          padding: "5px 5px",
-                          cursor: "pointer",
-                          borderRadius: "50%",
-                          backgroundColor: "#fff",
-                        }}
-                      />
-                    </IconButton>
+                    <CallIcon
+                      sx={{
+                        transition: "all 0.1s linear",
+                        fontSize: { xs: "1.5rem", sm: "2rem" },
+                        padding: "5px 5px",
+                        cursor: "pointer",
+                        borderRadius: "50%",
+                        backgroundColor: "#fff",
+                        color: "#075E54",
+                      }}
+                    />
+
+                    <VideocamIcon
+                      sx={{
+                        transition: "all 0.1s linear",
+                        fontSize: { xs: "1.5rem", sm: "2rem" },
+                        color: "#128C7E",
+                        padding: "5px 5px",
+                        cursor: "pointer",
+                        borderRadius: "50%",
+                        backgroundColor: "#fff",
+                      }}
+                    />
+
+                    <SearchIcon
+                      sx={{
+                        transition: "all 0.1s linear",
+                        fontSize: { xs: "1.5rem", sm: "2rem" },
+                        color: "#128C7E",
+                        padding: "5px 5px",
+                        cursor: "pointer",
+                        borderRadius: "50%",
+                        backgroundColor: "#fff",
+                      }}
+                    />
                   </Box>
                 </Box>
                 <Box
@@ -1274,7 +1269,7 @@ const ChatSpaceApp = () => {
                       padding: { xs: "6px 10px", sm: "10px 15px" },
                       color: "#075E54",
                       borderRadius: "20px",
-                      fontSize: { xs: "0.8rem", sm: "1.5rem" },
+                      fontSize: { xs: "0.8rem", sm: "1rem" },
                     }}
                     disableUnderline={true}
                     value={messageInput}
@@ -1282,16 +1277,16 @@ const ChatSpaceApp = () => {
                   />
                   <IconButton
                     type="submit"
-                    // disabled={
-                    //   !messageInput ||
-                    //   /^\s*$/.test(messageInput) ||
-                    //   messageInput.trim().length === 0
-                    // }
+                    disabled={
+                      !messageInput ||
+                      /^\s*$/.test(messageInput) ||
+                      messageInput.trim().length === 0
+                    }
                     sx={{ width: { xs: "20%", md: "10%" } }}
                   >
                     <SendIcon
                       sx={{
-                        fontSize: { xs: "2.5rem", sm: "3rem" },
+                        fontSize: { xs: "2.5rem", sm: "2.8rem" },
                         color: "#128C7E",
                         padding: { xs: "3px 6px", sm: "5px 10px" },
                         cursor: "pointer",
