@@ -20,7 +20,7 @@ const Error = () => {
         alignItems: "center",
         textAlign: "center",
         gap: "20px",
-        color: "#128C7E",
+        color: "white",
       }}
     >
       <h1 style={{ fontWeight: "900", fontSize: "4rem" }}>Oops!</h1>
