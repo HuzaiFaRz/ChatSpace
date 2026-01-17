@@ -171,7 +171,7 @@ const ChatSpaceApp = () => {
     try {
       const UsersDocRef = query(
         collection(db, "Users"),
-        orderBy("signupTime", "asc")
+        orderBy("signupTime", "asc"),
       );
       const allUsersSnapShot = onSnapshot(UsersDocRef, (snapshot) => {
         const allUserDataSnapShot = snapshot.docs.map((allUsersData) => {
@@ -181,7 +181,7 @@ const ChatSpaceApp = () => {
           };
         });
         const outSideUserFiltered = allUserDataSnapShot.filter(
-          (data) => data.allUserID !== loginUser.uid
+          (data) => data.allUserID !== loginUser.uid,
         );
         allUserDataSnapShot
           .filter((data) => data.allUserID === loginUser.uid)
@@ -252,7 +252,7 @@ const ChatSpaceApp = () => {
           where("messageSendTo", "in", [
             chat.chatOpenData?.allUserID,
             loginUser?.uid,
-          ])
+          ]),
         ),
 
         (snapshot) => {
@@ -264,10 +264,10 @@ const ChatSpaceApp = () => {
           });
           setAllMessages(
             messagesGetting.sort(
-              (a, b) => a?.messageSendAt?.seconds - b?.messageSendAt?.seconds
-            )
+              (a, b) => a?.messageSendAt?.seconds - b?.messageSendAt?.seconds,
+            ),
           );
-        }
+        },
       );
 
       return () => {
@@ -408,12 +408,17 @@ const ChatSpaceApp = () => {
   // Chats
   const contacts =
     outSideUsers?.length === 0 ? (
-      <CircularProgress
-        size={"5rem"}
+      <Typography
         sx={{
-          color: "white",
+          width: "100%",
+          textAlign: "center",
+          fontWeight: "400",
+          color: "#fff",
+          fontSize: { xs: "1rem", sm: "2rem" },
         }}
-      />
+      >
+        No User Found
+      </Typography>
     ) : (
       <>
         <Box
@@ -920,7 +925,7 @@ const ChatSpaceApp = () => {
                             data?.messageSendAt?.seconds * 1000 +
                             data?.messageSendAt?.nanoseconds / 1000000;
                           const messageSendAtConverted = new Date(
-                            messageSendAtConvert
+                            messageSendAtConvert,
                           )?.toLocaleString("en-US", {
                             hour: "2-digit",
                             minute: "2-digit",
@@ -932,7 +937,7 @@ const ChatSpaceApp = () => {
                           return (
                             <React.Fragment key={index}>
                               {data?.messageDeleteForMe?.includes(
-                                loginUser.uid
+                                loginUser.uid,
                               ) || (
                                 <Box
                                   component={"div"}
