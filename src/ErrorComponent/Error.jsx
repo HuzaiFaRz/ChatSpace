@@ -1,9 +1,6 @@
 import { useEffect } from "react";
-import { useRouteError } from "react-router-dom";
 
 const Error = () => {
-  const error = useRouteError();
-  console.error(error);
   useEffect(() => {
     document.title = "ChatSpace | Error";
   }, []);
@@ -28,10 +25,7 @@ const Error = () => {
         Sorry, an unexpected error has occurred.
       </p>
       <p>
-        <i style={{ fontWeight: "700", fontSize: "1rem" }}>
-          {" "}
-          {error?.statusText || error?.message || "404 Not Found"}
-        </i>
+        <i style={{ fontWeight: "700", fontSize: "1rem" }}>404 Not Found</i>
       </p>
     </div>
   );
