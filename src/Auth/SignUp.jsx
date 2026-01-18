@@ -194,7 +194,7 @@ const SignUp = () => {
               xs: "100%",
               sm: "500px",
             },
-            height: "700px",
+            height: "max-content",
             display: "flex",
             flexDirection: "column",
             justifyContent: "space-evenly",
