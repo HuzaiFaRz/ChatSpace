@@ -10,7 +10,7 @@ import {
   IconButton,
   Typography,
 } from "@mui/material";
-import AddAPhotoIcon from "@mui/icons-material/AddAPhoto";
+// import AddAPhotoIcon from "@mui/icons-material/AddAPhoto";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import { ToastContainer } from "react-toastify";
@@ -22,12 +22,12 @@ import {
   auth,
   createUserWithEmailAndPassword,
   db,
-  storage,
+  // storage,
   doc,
   setDoc,
-  ref,
-  uploadBytes,
-  getDownloadURL,
+  // ref,
+  // uploadBytes,
+  // getDownloadURL,
   serverTimestamp,
 } from "./firebase";
 import { useNavigate } from "react-router-dom";
@@ -38,11 +38,11 @@ const SignUp = () => {
   }, []);
 
   const navigate = useNavigate();
-  const [fileExtension, setFileExtension] = useState();
+  // const [fileExtension, setFileExtension] = useState();
   const [signUpLoading, setSignUpLoading] = useState(false);
   const [passwordShow, setPasswordShow] = useState(false);
   const [signUpInputs, setSignUpInputs] = useState({
-    signUpProfile: "",
+    // signUpProfile: "",
     signUpName: "",
     signUpEmail: "",
     signUpPassword: "",
@@ -65,22 +65,22 @@ const SignUp = () => {
       inputPlaceHolderName: "Password",
       inputType: passwordShow ? "text" : "password",
     },
-    {
-      inputCommonName: "signUpProfile",
-      inputPlaceHolderName: "Select Profile",
-      inputType: "file",
-    },
+    // {
+    //   inputCommonName: "signUpProfile",
+    //   inputPlaceHolderName: "Select Profile",
+    //   inputType: "file",
+    // },
   ];
   // const filesExtentions = /(\.jpg|\.jpeg|\.webp|\.png)$/i;
   const signUpInputsHandler = (event) => {
     try {
-      const { name, value, type } = event.target;
+      const { name, value /* type */ } = event.target;
       setSignUpInputs((prevSetSignUpInputs) => ({
         ...prevSetSignUpInputs,
-        [name]: type === "file" ? event.target.files[0] : value,
+        [name]: /* type === "file" ? event.target.files[0] :  */ value,
       }));
 
-      type === "file" && setFileExtension(event.target.files[0].type);
+      // type === "file" && setFileExtension(event.target.files[0].type);
     } catch (error) {
       console.log(error);
     }
@@ -101,18 +101,21 @@ const SignUp = () => {
       } else if (signUpInputs.signUpPassword.length < 6) {
         errorShow(allErrors.passwordWeekError);
         return;
-      } else if (!signUpInputs.signUpProfile) {
-        errorShow(allErrors.profileError);
-        return;
-      } else if (
-        fileExtension !== "image/jpeg" &&
-        fileExtension !== "image/jpg" &&
-        fileExtension !== "image/png" &&
-        fileExtension !== "image/webp"
-      ) {
-        errorShow(allErrors.profileExtention);
-        return;
-      } else if (
+      }
+      //  else if (!signUpInputs.signUpProfile) {
+      //   errorShow(allErrors.profileError);
+      //   return;
+      // }
+      // else if (
+      //   fileExtension !== "image/jpeg" &&
+      //   fileExtension !== "image/jpg" &&
+      //   fileExtension !== "image/png" &&
+      //   fileExtension !== "image/webp"
+      // ) {
+      //   errorShow(allErrors.profileExtention);
+      //   return;
+      // }
+      else if (
         /^\s*$/.test(signUpInputs.signUpName) ||
         /\s/.test(signUpInputs.signUpEmail) ||
         /\s/.test(signUpInputs.signUpPassword)
@@ -124,20 +127,20 @@ const SignUp = () => {
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         signUpInputs.signUpEmail,
-        signUpInputs.signUpPassword
+        signUpInputs.signUpPassword,
       );
       const user = userCredential.user;
-      const userRef = ref(storage, `Users/${user.uid}`);
-      await uploadBytes(userRef, signUpInputs.signUpProfile);
-      const URL = await getDownloadURL(userRef);
-      signUpInputs.signUpProfile = URL;
+      // const userRef = ref(storage, `Users/${user.uid}`);
+      // await uploadBytes(userRef, signUpInputs.signUpProfile);
+      // const URL = await getDownloadURL(userRef);
+      // signUpInputs.signUpProfile = URL;
       const usersDoc = doc(db, "Users", user.uid);
       await setDoc(usersDoc, signUpInputs);
       successShow(allSuccess.signUpSuccess);
       setSignUpLoading(false);
       setSignUpInputs((prevSetSignUpInputs) => ({
         ...prevSetSignUpInputs,
-        signUpProfile: "",
+        // signUpProfile: "",
         signUpName: "",
         signUpEmail: "",
         signUpPassword: "",
@@ -163,11 +166,12 @@ const SignUp = () => {
       setSignUpLoading(false);
     }
   };
+
   return (
     <Fragment>
       <Box
         width={"100%"}
-        height={"100%"}
+        height={"100vh"}
         component={"div"}
         className="SignUpPage"
         sx={{
@@ -240,11 +244,11 @@ const SignUp = () => {
                       }),
                     }}
                   >
-                    {elem.inputType === "file" && (
+                    {/* {elem.inputType === "file" && (
                       <AddAPhotoIcon
                         sx={{ fontSize: "1.3em", marginBottom: "0.4rem" }}
                       ></AddAPhotoIcon>
-                    )}
+                    )} */}
                     {elem.inputPlaceHolderName}
                   </FormLabel>
 
@@ -259,18 +263,20 @@ const SignUp = () => {
                     }}
                     id={elem.inputCommonName}
                     placeholder={
-                      elem.inputType === "file"
-                        ? undefined
-                        : `Enter ${elem.inputPlaceHolderName}`
+                      // elem.inputType === "file"
+                      //   ? undefined
+                      //   :
+                      `Enter ${elem.inputPlaceHolderName}`
                     }
                     value={
-                      elem.inputType === "file"
-                        ? undefined
-                        : signUpInputs[elem.inputCommonName] || ""
+                      // elem.inputType === "file"
+                      //   ? undefined
+                      //   :
+                      signUpInputs[elem.inputCommonName] || ""
                     }
-                    inputProps={{
-                      accept: elem.inputType === "file" ? "image/*" : undefined,
-                    }}
+                    // inputProps={{
+                    //   accept: elem.inputType === "file" ? "image/*" : undefined,
+                    // }}
                     onChange={(event) => {
                       signUpInputsHandler(event);
                     }}
@@ -355,6 +361,7 @@ const SignUp = () => {
               justifyContent: "center",
               alignItems: "center",
               gap: "10px",
+              fontSize: "14px",
             }}
           >
             Already have an Account ?

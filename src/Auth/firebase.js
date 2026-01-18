@@ -25,7 +25,7 @@ import {
   deleteField,
   limit,
 } from "firebase/firestore";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+// import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { toast } from "react-toastify";
 const {
   VITE_CHATSPACE_apiKey,
@@ -48,7 +48,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-const storage = getStorage(app);
+// const storage = getStorage(app);
 
 const notificationStyled = {
   style: { width: "100%", lineHeight: "20px" },
@@ -74,7 +74,7 @@ const allErrors = {
   profileError: "Select Profile Photo",
   blankSpace: "Please remove any blank spaces.",
   passwordWeekError: "Password should be at least 6 characters",
-  profileExtention: "File extension not supported!",
+  // profileExtention: "File extension not supported!",
   emptyMessegeError: "Please Type Messege",
   logOutError: "An error occurred while logging out",
   messageCopyError: "Failed to Copy Message",
@@ -101,16 +101,16 @@ export {
   signOut,
   deleteField,
   db,
-  storage,
+  // storage,
   doc,
   onSnapshot,
   setDoc,
   getDoc,
   getDocs,
-  ref,
-  uploadBytes,
+  // ref,
+  // uploadBytes,
   arrayUnion,
-  getDownloadURL,
+  // getDownloadURL,
   addDoc,
   collection,
   query,

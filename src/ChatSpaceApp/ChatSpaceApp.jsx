@@ -494,7 +494,7 @@ const ChatSpaceApp = () => {
                   }));
                 }}
               >
-                <Box
+                {/* <Box
                   component={"img"}
                   sx={{
                     borderRadius: "50%",
@@ -505,7 +505,26 @@ const ChatSpaceApp = () => {
                   }}
                   src={data?.allUserDATA?.signUpProfile}
                   alt="Profile Img"
-                />
+                /> */}
+
+                <Box
+                  component={"div"}
+                  sx={{
+                    borderRadius: "50%",
+                    width: "30px",
+                    height: "30px",
+                    objectFit: "cover",
+                    objectPosition: "center",
+                    backgroundColor: "white",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    fontWeight: "900",
+                  }}
+                >
+                  {data?.allUserDATA?.signUpName?.toUpperCase()[0] || `Hi`}
+                </Box>
+
                 <ListItemText
                   primary={data?.allUserDATA?.signUpName}
                   sx={{ color: "#fff" }}
@@ -537,7 +556,7 @@ const ChatSpaceApp = () => {
             position: "fixed",
             top: "0",
             left: "0",
-            height: { xs: "15%", sm: "10%" },
+            height: { xs: "17%", sm: "10%" },
             display: "flex",
             flexDirection: "row",
             justifyContent: "space-between",
@@ -631,7 +650,7 @@ const ChatSpaceApp = () => {
               gap: "20px",
             }}
           >
-            <Box
+            {/* <Box
               component={"img"}
               sx={{
                 borderRadius: "50%",
@@ -642,7 +661,7 @@ const ChatSpaceApp = () => {
               }}
               src={currentUser?.allUserDATA?.signUpProfile}
               alt="Profile Img"
-            />
+            /> */}
             <Typography
               sx={{
                 width: "100%",
@@ -678,7 +697,7 @@ const ChatSpaceApp = () => {
           sx={{
             width: "100%",
             // height: { xs: "calc(100% - 120px)", sm: "calc(100% - 80px)" },
-            height: { xs: "85%", sm: "90%" },
+            height: { xs: "83%", sm: "90%" },
             display: "flex",
           }}
         >
@@ -778,7 +797,7 @@ const ChatSpaceApp = () => {
                               gap: "50px",
                             }}
                           >
-                            <Box
+                            {/* <Box
                               component={"img"}
                               sx={{
                                 borderRadius: "50%",
@@ -791,7 +810,30 @@ const ChatSpaceApp = () => {
                                 chat.chatOpenData?.allUserDATA?.signUpProfile
                               }
                               alt="Profile Img"
-                            />
+                            /> */}
+
+                            <Box
+                              component={"div"}
+                              sx={{
+                                borderRadius: "50%",
+                                width: { xs: "30px", sm: "60px" },
+                                height: { xs: "30px", sm: "60px" },
+                                objectFit: "cover",
+                                objectPosition: "center",
+                                backgroundColor: "white",
+                                display: "flex",
+                                justifyContent: "center",
+                                alignItems: "center",
+                                fontWeight: "900",
+                                color: "#075E54",
+                                fontSize: { xs: "1rem", sm: "1.5rem" },
+                              }}
+                            >
+                              {
+                                chat.chatOpenData?.allUserDATA?.signUpName.toUpperCase()[0]
+                              }
+                            </Box>
+
                             <Box>
                               <Typography
                                 id="modal-modal-title"
@@ -815,7 +857,7 @@ const ChatSpaceApp = () => {
                           </Box>
                         </Fade>
                       </Modal>
-                      <Box
+                      {/* <Box
                         component={"img"}
                         sx={{
                           borderRadius: "50%",
@@ -826,7 +868,28 @@ const ChatSpaceApp = () => {
                         }}
                         src={chat.chatOpenData?.allUserDATA?.signUpProfile}
                         alt="Profile Img"
-                      />
+                      /> */}
+                      <Box
+                        component={"div"}
+                        sx={{
+                          borderRadius: "50%",
+                          width: "30px",
+                          height: "30px",
+                          objectFit: "cover",
+                          objectPosition: "center",
+                          backgroundColor: "white",
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          fontWeight: "900",
+                          color: "#075E54",
+                          fontSize: "18px",
+                        }}
+                      >
+                        {
+                          chat.chatOpenData?.allUserDATA?.signUpName.toUpperCase()[0]
+                        }
+                      </Box>
                       <ListItemText
                         primary={chat.chatOpenData?.allUserDATA?.signUpName}
                         sx={{
@@ -840,7 +903,7 @@ const ChatSpaceApp = () => {
                         flexDirection: "row",
                         justifyConetnt: "center",
                         alignItems: "center",
-                        gap: "20px",
+                        gap: "10px",
                       }}
                     >
                       <CallIcon

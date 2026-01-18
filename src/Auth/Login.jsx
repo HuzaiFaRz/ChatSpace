@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useState } from "react";
-import { Link,  useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   FormControl,
   Input,
@@ -80,7 +80,7 @@ const LogIn = () => {
       const userCredential = await signInWithEmailAndPassword(
         auth,
         logInInputs.logInEmail,
-        logInInputs.logInPassword
+        logInInputs.logInPassword,
       );
       setLoginUser(userCredential.user);
       navigate("/");
@@ -114,7 +114,7 @@ const LogIn = () => {
     <Fragment>
       <Box
         width={"100%"}
-        height={"100%"}
+        height={"100vh"}
         component={"div"}
         className="LogInPage"
         sx={{
@@ -286,7 +286,7 @@ const LogIn = () => {
               gap: "10px",
             }}
           >
-            Don't have an Account ?
+            Dont have an Account ?
             <Button disabled={logInLoading ? true : false}>
               <Link
                 to={"/signup"}
